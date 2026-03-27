@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+faster-whisper
+ollama
+chromadb
+python-multipart
+soundfile
+numpy

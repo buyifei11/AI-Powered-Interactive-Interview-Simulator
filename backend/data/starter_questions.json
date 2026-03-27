@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "job_role": "software engineering",
+    "topic": "Python",
+    "difficulty": "medium",
+    "question": "Can you explain the difference between a list and a tuple in Python?",
+    "type": "technical"
+  },
+  {
+    "id": 2,
+    "job_role": "software engineering",
+    "topic": "System Design",
+    "difficulty": "hard",
+    "question": "How would you design a scalable URL shortening service like bit.ly?",
+    "type": "technical"
+  },
+  {
+    "id": 3,
+    "job_role": "data science",
+    "topic": "machine learning",
+    "difficulty": "medium",
+    "question": "What is the difference between L1 and L2 regularization?",
+    "type": "technical"
+  },
+  {
+    "id": 4,
+    "job_role": "any",
+    "topic": "behavioral",
+    "difficulty": "easy",
+    "question": "Tell me about a time you had to deal with a difficult team member.",
+    "type": "behavioral"
+  }
+]
