@@ -32,12 +32,20 @@ export default function InterviewSimulator() {
     }
   };
 
+  const recordingStartTime = useRef<number>(0);
+
   const startRecording = async () => {
+    if (isRecording) {
+      // Toggle off: stop recording
+      stopRecording();
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
+      recordingStartTime.current = Date.now();
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -46,11 +54,18 @@ export default function InterviewSimulator() {
       };
 
       mediaRecorder.onstop = async () => {
+        const duration = Date.now() - recordingStartTime.current;
+        if (duration < 500 || audioChunksRef.current.length === 0) {
+          // Too short — ignore
+          console.warn("Recording too short, ignoring.");
+          return;
+        }
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         await handleAudioSubmit(audioBlob);
       };
 
-      mediaRecorder.start();
+      // timeslice=100ms so chunks are generated every 100ms while recording
+      mediaRecorder.start(100);
       setIsRecording(true);
     } catch (error) {
       console.error(error);
@@ -180,11 +195,7 @@ export default function InterviewSimulator() {
             {/* Bottom Control Bar */}
             <div className="p-6 bg-slate-900 border-t border-slate-800 flex flex-col items-center justify-center gap-4 relative z-10">
               <button
-                onMouseDown={startRecording}
-                onMouseUp={stopRecording}
-                onMouseLeave={stopRecording}
-                onTouchStart={startRecording}
-                onTouchEnd={stopRecording}
+                onClick={startRecording}
                 disabled={loading}
                 className={`group relative flex items-center justify-center w-20 h-20 rounded-full transition-all duration-300 ${
                   isRecording 
@@ -207,7 +218,7 @@ export default function InterviewSimulator() {
                 </svg>
               </button>
               <div className="text-xs text-slate-400 font-medium">
-                {isRecording ? "Listening... Release to send" : "Hold to speak"}
+                {isRecording ? "Recording... Click to stop & send" : "Click to start speaking"}
               </div>
             </div>
           </div>
