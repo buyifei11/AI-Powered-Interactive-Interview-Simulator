@@ -1,7 +1,7 @@
 fastapi
 uvicorn
-faster-whisper
-ollama
+groq
+python-dotenv
 chromadb
 python-multipart
 soundfile

@@ -5,6 +5,9 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from dotenv import load_dotenv
+
+load_dotenv()
 
 import asr
 import llm
@@ -49,7 +52,7 @@ async def start_interview(req: StartInterviewRequest):
     return {"question": first_q, "session_id": str(uuid.uuid4())}
 
 @app.post("/api/chat")
-async def chat(
+def chat(
     audio: UploadFile = File(...),
     current_question: str = Form(...),
     session_id: str = Form(...)
@@ -71,7 +74,7 @@ async def chat(
     ai_response_text = eval_result["evaluation_and_followup"]
     
     # 4. Synthesize Speech
-    tts_output_filename = f"outputs/{session_id}_{uuid.uuid4()}.aiff"
+    tts_output_filename = f"outputs/{session_id}_{uuid.uuid4()}.mp3"
     tts.text_to_speech(ai_response_text, tts_output_filename)
     
     return {
@@ -83,7 +86,7 @@ async def chat(
 @app.get("/api/audio/{filename}")
 async def get_audio(filename: str):
     file_path = f"outputs/{filename}"
-    return FileResponse(file_path, media_type="audio/x-aiff")
+    return FileResponse(file_path, media_type="audio/mpeg")
 
 if __name__ == "__main__":
     import uvicorn

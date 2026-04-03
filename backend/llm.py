@@ -1,23 +1,39 @@
-import ollama
+import os
+from groq import Groq
 
-# Default model (user should have this pulled in Ollama, e.g., 'llama3' or 'qwen2')
-DEFAULT_MODEL = "llama3"
+DEFAULT_MODEL = "llama-3.1-8b-instant"
+
+def get_client():
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        print("Warning: GROQ_API_KEY not found in environment.")
+        return None
+    return Groq(api_key=api_key)
 
 def generate_response(prompt: str, system_prompt: str = "", model: str = DEFAULT_MODEL) -> str:
     """
-    Generates a response from the local Ollama model.
+    Generates a response from Groq API.
     """
+    client = get_client()
+    if not client:
+        return "Error: GROQ_API_KEY is missing."
+
     try:
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
         
-        response = ollama.chat(model=model, messages=messages)
-        return response['message']['content']
+        chat_completion = client.chat.completions.create(
+            messages=messages,
+            model=model,
+            temperature=0.7,
+            max_tokens=512,
+        )
+        return chat_completion.choices[0].message.content
     except Exception as e:
-        print(f"Error communicating with Ollama: {e}")
-        return f"Error connecting to Ollama: {e}"
+        print(f"Error communicating with Groq API: {e}")
+        return f"Error connecting to Groq API: {e}"
 
 def evaluate_answer(question: str, user_answer: str, context: str = "") -> dict:
     """
@@ -38,8 +54,6 @@ def evaluate_answer(question: str, user_answer: str, context: str = "") -> dict:
     }
 
 if __name__ == "__main__":
-    # Test
-    # Make sure Ollama is running and has llama3 installed: `ollama run llama3`
-    print("Testing Ollama connection...")
+    print("Testing Groq API connection...")
     res = generate_response("Hello, what is 2+2?", "You are a helpful assistant.", DEFAULT_MODEL)
     print("Response:", res)
