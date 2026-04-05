@@ -15,12 +15,18 @@
 
 ---
 
-## UI Components
+## UI Components & Design System
 
 | Package | Purpose | Why chosen |
 |---------|---------|------------|
 | `shadcn/ui` | Base component library: Button, Input, Card, Badge, Dialog, Select, Skeleton, etc. | Components are copied directly into the repo (`components/ui/`) — full ownership, no version lock-in, no library upgrade breaking changes. Built on Tailwind so everything composes with utility classes. |
 | `@radix-ui/*` | Headless primitives underlying shadcn/ui | Accessibility is handled out of the box: focus traps, ARIA attributes, keyboard navigation. We get compliant interactive components without building them from scratch. |
+| `next-themes` | Light/dark mode toggle with SSR-safe hydration | Handles system preference detection, localStorage persistence, and no-flash SSR via `<html>` class toggling. `defaultTheme="dark"` — dark is the primary experience. |
+| `lucide-react` | Icon library | Clean, consistent icon set used by shadcn/ui. Used for the theme toggle (Sun/Moon), mic icons, navigation icons, etc. |
+| **Plus Jakarta Sans** | Display font — landing page headlines and large UI headings | Loaded via `next/font/google`. More character and elegance than Inter for display-scale text; pairs well with Geist Sans for body. |
+| **Geist Sans / Geist Mono** | UI body font and monospace font | Bundled with Next.js (`geist` package). Clean, modern, readable. Geist Mono used for transcript display and code content. |
+
+**Design theme:** "Midnight Focus" — dark-first (`zinc-950` base), `violet-600 → indigo-500` accent gradient. Full token system documented in [`06-components/design-principles.md`](../06-components/design-principles.md).
 
 ---
 

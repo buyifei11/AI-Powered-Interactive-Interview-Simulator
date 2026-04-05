@@ -46,18 +46,75 @@ def text_to_speech(text: str, output_path: str = "output.mp3") -> Optional[str]:
 
 Use the ElevenLabs Python SDK. Voice ID to use: configure via `ELEVENLABS_VOICE_ID` env var. The interviewer voice should be professional and neutral.
 
-### 2. Frontend — shadcn/ui Setup
+### 2. Frontend — Design System Setup
+
+#### a. Install dependencies
 
 ```bash
 cd frontend
+npm install next-themes
+npm install lucide-react
+```
+
+#### b. Initialize shadcn/ui
+
+```bash
 npx shadcn@latest init
 ```
 
-Follow the prompts: TypeScript, Tailwind, App Router, `src/` directory, `@/` alias. Then add the base components needed for the interview UI:
+Follow the prompts: TypeScript, Tailwind, App Router, `src/` directory, `@/` alias. When asked for a base color, choose **Zinc**.
+
+Then add the base components:
 
 ```bash
-npx shadcn@latest add button card badge textarea input avatar separator skeleton
+npx shadcn@latest add button card badge textarea input avatar separator skeleton dialog select tooltip dropdown-menu sheet
 ```
+
+#### c. Configure fonts in `app/layout.tsx`
+
+```typescript
+import { Plus_Jakarta_Sans } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-display',
+  weight: ['400', '500', '600', '700', '800'],
+})
+```
+
+Apply to `<html className={`${GeistSans.variable} ${GeistMono.variable} ${plusJakarta.variable}`}>`.
+
+Add to `tailwind.config.ts`:
+
+```typescript
+theme: {
+  extend: {
+    fontFamily: {
+      display: ['var(--font-display)', 'sans-serif'],
+    }
+  }
+}
+```
+
+#### d. Add font-display to `globals.css`
+
+```css
+h1, h2, h3 {
+  font-family: var(--font-display), sans-serif;
+}
+```
+
+#### e. Configure `globals.css` theme tokens
+
+Replace the default shadcn/ui color tokens with the Midnight Focus palette from [`06-components/design-principles.md`](../06-components/design-principles.md). Dark is the default theme (`defaultTheme="dark"` in ThemeProvider).
+
+#### f. Add `ThemeProvider`
+
+Create `components/providers/ThemeProvider.tsx` and wrap `app/layout.tsx` children. See [`06-components/design-principles.md`](../06-components/design-principles.md) for the full implementation.
+
+Add `<ThemeToggle />` to the `Topbar` and `LandingNav`.
 
 ### 3. Route Structure
 
@@ -92,6 +149,12 @@ src/app/
 | Frontend deployment | Vercel | Native Next.js support |
 | Backend deployment | Railway | FastAPI (Python), Docker-based, GitHub deploy |
 | Feedback timing | Post-session only | No inline scores during interview — full debrief after |
+| Design theme | "Midnight Focus" — dark default, violet/indigo accent | Differentiates from light-themed competitors; immersive practice feel |
+| Theme toggle | `next-themes` with dark default, light option | User preference; SSR-safe |
+| Display font | Plus Jakarta Sans | Character and elegance for landing headlines; pairs with Geist Sans for UI |
+| UI font | Geist Sans / Geist Mono | Bundled with Next.js; clean, modern, readable |
+| Accent color | `violet-600 → indigo-500` gradient | Distinctive, premium; no competitor uses it |
+| Background system | `zinc-*` scale (zinc-950 dark, zinc-50 light) | Warmer undertone than slate; more premium feel |
 
 ---
 
