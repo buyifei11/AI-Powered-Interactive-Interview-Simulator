@@ -47,7 +47,11 @@ The stack is Next.js (App Router), FastAPI (Python), Supabase (auth + database),
 
 ## Active Implementation Briefs
 
-- None currently — see [NEXT-STEPS.md](./NEXT-STEPS.md) for the current active prompt.
+See [NEXT-STEPS.md](./NEXT-STEPS.md) — current sprint: TTS replacement (ElevenLabs), Supabase auth, database schema.
+
+## Completed Milestones
+
+- [Milestone 01 — Foundation](./archive/MILESTONE-01-FOUNDATION.md): Design system, landing page, route structure, ThemeProvider, fonts
 
 ## Deferred Features
 

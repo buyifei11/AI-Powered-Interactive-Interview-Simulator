@@ -1,66 +1,87 @@
-# AI-Powered Interactive Interview Simulator
+# AI Interview Simulator
 
-An AI-driven interview simulator that listens to your voice answers, evaluates them in real-time using a large language model, and asks intelligent follow-up questions — all spoken back to you.
+A voice-first AI interview practice platform. Speak your answers to an AI interviewer, receive intelligent follow-up questions, and get a comprehensive feedback report when your session ends.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js (React) |
+| Frontend | Next.js 16 (App Router), React 19, Tailwind v4, shadcn/ui |
 | Backend | FastAPI (Python) |
-| Speech-to-Text (ASR) | Groq API — `whisper-large-v3` |
-| Language Model (LLM) | Groq API — `llama-3.1-8b-instant` |
-| Text-to-Speech (TTS) | macOS `say` command (via `ffmpeg`) |
+| ASR (Speech-to-Text) | Groq API — `whisper-large-v3` |
+| LLM | Groq API — `llama-3.1-8b-instant` |
+| TTS (Text-to-Speech) | ElevenLabs API |
 | Vector DB (RAG) | ChromaDB |
+| Auth & Database | Supabase (PostgreSQL) |
 
-## Setup Instructions
+## Full Documentation
 
-### Prerequisites
-- Python 3.9+
-- Node.js 18+
-- macOS (required for the built-in TTS `say` command)
-- `ffmpeg` installed via Homebrew: `brew install ffmpeg`
-- A free **Groq API Key** from [console.groq.com](https://console.groq.com)
+All architecture decisions, feature specs, setup guides, and design system docs live in [`documentation/`](./documentation/README.md). Read that first for a full picture.
 
 ---
 
+## Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- Python 3.9+
+- `ffmpeg` — `brew install ffmpeg` (macOS) or `apt-get install ffmpeg` (Linux)
+- A free **Groq API key** from [console.groq.com](https://console.groq.com)
+- An **ElevenLabs API key** from [elevenlabs.io](https://elevenlabs.io)
+
 ### 1. Clone the Repository
+
 ```bash
-git clone https://github.com/buyifei11/AI-Powered-Interactive-Interview-Simulator.git
+git clone <repo-url>
 cd AI-Powered-Interactive-Interview-Simulator
 ```
 
 ### 2. Configure Environment Variables
+
 ```bash
 cd backend
 cp .env.example .env
 ```
-Open `backend/.env` and replace `your_groq_api_key_here` with your actual Groq API key.
+
+Open `backend/.env` and fill in:
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
+ELEVENLABS_VOICE_ID=21m00Tcm4TlvDq8ikWAM
+```
 
 ### 3. Start the Backend
+
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 python main.py
 ```
-The backend will start at `http://localhost:8000`.
+
+Backend runs at `http://localhost:8000`. Visit `/docs` for the API reference.
 
 ### 4. Start the Frontend
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-The frontend will start at `http://localhost:3000`.
+
+Frontend runs at `http://localhost:3000`.
 
 ---
 
 ## Usage
 
-1. Open [http://localhost:3000](http://localhost:3000) in your browser.
-2. Click **"Start Interview"** to begin a session.
-3. Click the **microphone button** to start recording your answer.
-4. Click it again to **stop and submit** your answer.
-5. The AI will evaluate your response and ask a follow-up question, both in text and spoken audio.
+1. Open [http://localhost:3000](http://localhost:3000) — you'll see the landing page.
+2. Click **"Start practicing free"** to go to the interview page.
+3. Click **"Start Interview"** to connect to the AI interviewer.
+4. Click the **microphone button** to record your answer, then click again to submit.
+5. The AI will respond with a follow-up question, displayed as text and played as audio.
+
+For detailed setup (Supabase, environment variables, deployment), see [`documentation/03-setup/getting-started.md`](./documentation/03-setup/getting-started.md).
