@@ -48,9 +48,7 @@ cd frontend
 cp .env.local.example .env.local
 ```
 
-Open `frontend/.env.local` and fill in all required values.
-
-> **Note:** `frontend/.env.local.example` needs to be created as part of the frontend migration sprint. For now, create `frontend/.env.local` manually with the values from [`environment-variables.md`](./environment-variables.md).
+Open `frontend/.env.local` and fill in your Supabase URL and anon key. See [`environment-variables.md`](./environment-variables.md) for the full list.
 
 ---
 
@@ -66,7 +64,7 @@ python main.py
 
 The backend starts at `http://localhost:8000`. Visit `http://localhost:8000/docs` for the auto-generated Swagger UI.
 
-> **ffmpeg path:** The current prototype hardcodes ffmpeg to `/opt/homebrew/bin/ffmpeg`. If you're on Linux or a different macOS setup, update this path in `asr.py` and `tts.py`, or replace with `shutil.which("ffmpeg")` for portability.
+> **ffmpeg:** Both `asr.py` and `tts.py` invoke ffmpeg by name (`"ffmpeg"`) without a hardcoded path, so the system `PATH` is used. Ensure ffmpeg is installed and available on your `PATH` before starting the backend.
 
 ---
 
@@ -84,21 +82,32 @@ The frontend starts at `http://localhost:3000`.
 
 ## 5. Verify the Setup
 
-1. Open `http://localhost:3000` in your browser.
-2. Confirm the page loads without console errors.
-3. Check `http://localhost:8000/api/health` returns `{"status": "ok"}`.
+1. Open `http://localhost:3000` — the landing page should load.
+2. Navigate to `http://localhost:3000/register` — the sign-up form should appear.
+3. Navigate to `http://localhost:3000/dashboard` without being logged in — middleware should redirect you to `/login`.
+4. Check `http://localhost:8000/api/health` returns `{"status": "ok"}` (requires backend running).
 
 ---
 
-## 6. Supabase Setup (Planned — Required After Auth Sprint)
-
-Once the auth sprint begins, you'll need a Supabase project.
+## 6. Supabase Setup (Required)
 
 1. Go to [supabase.com](https://supabase.com) and create a new project.
-2. In the Supabase dashboard, open **SQL Editor** and run the schema from [`02-architecture/data-flow.md`](../02-architecture/data-flow.md#4-database-schema) to create the required tables.
-3. Enable Row-Level Security on all tables and apply the policies from the same file.
-4. In **Authentication → Settings**, set the Site URL to `http://localhost:3000` for local development.
-5. Copy the project URL, anon key, and service role key into `frontend/.env.local` and `backend/.env` as described in [`environment-variables.md`](./environment-variables.md).
+
+2. **Disable email confirmation** (required for local dev, re-enable for production):
+   Supabase Dashboard → Authentication → Providers → Email → toggle **"Confirm email"** OFF.
+
+3. **Run the database migration:**
+   In the Supabase Dashboard → SQL Editor → New query, paste and run the contents of [`supabase/migrations/001_profiles.sql`](../../supabase/migrations/001_profiles.sql). This creates the `profiles` table with RLS policies.
+
+4. **Copy your API keys:**
+   Dashboard → Settings → API Keys. Copy the **Project URL** and **Publishable key** (the anon key) into `frontend/.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...
+   ```
+
+5. **Set the Site URL** for local development:
+   Dashboard → Authentication → URL Configuration → Site URL → `http://localhost:3000`.
 
 ---
 

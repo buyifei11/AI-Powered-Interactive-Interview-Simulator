@@ -1,3 +1,7 @@
+// Interview page — core interview simulator at /interview.
+// Protected by middleware: only accessible to authenticated users.
+// This is the original prototype UI; will be redesigned in a future sprint.
+
 "use client";
 
 import { useState, useRef } from "react";
@@ -10,10 +14,26 @@ export default function InterviewSimulator() {
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
+  const audioUnlockedRef = useRef(false);
 
   const BACKEND_URL = "http://localhost:8000";
 
+  const unlockAudio = () => {
+    if (audioUnlockedRef.current) return;
+    // Play a silent 1-sample audio to satisfy the browser's user-gesture
+    // requirement, so that subsequent programmatic audio.play() calls succeed.
+    const ctx = new AudioContext();
+    const buf = ctx.createBuffer(1, 1, 22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+    ctx.close();
+    audioUnlockedRef.current = true;
+  };
+
   const startInterview = async () => {
+    unlockAudio();
     setLoading(true);
     try {
       const res = await fetch(`${BACKEND_URL}/api/start`, {
@@ -36,7 +56,6 @@ export default function InterviewSimulator() {
 
   const startRecording = async () => {
     if (isRecording) {
-      // Toggle off: stop recording
       stopRecording();
       return;
     }
@@ -55,8 +74,8 @@ export default function InterviewSimulator() {
 
       mediaRecorder.onstop = async () => {
         const duration = Date.now() - recordingStartTime.current;
+        // Too-short recordings produce garbled transcripts — ignore them.
         if (duration < 500 || audioChunksRef.current.length === 0) {
-          // Too short — ignore
           console.warn("Recording too short, ignoring.");
           return;
         }
@@ -106,7 +125,9 @@ export default function InterviewSimulator() {
 
       if (data.audio_url) {
         const audio = new Audio(`${BACKEND_URL}${data.audio_url}`);
-        audio.play();
+        audio.play().catch(() => {
+          // Autoplay blocked — user can use the audio controls in the chat bubble.
+        });
       }
     } catch (error) {
       console.error(error);
@@ -163,8 +184,8 @@ export default function InterviewSimulator() {
                     )}
                     <div
                       className={`rounded-3xl px-6 py-4 shadow-md ${
-                        msg.role === "user" 
-                          ? "bg-blue-600 text-white rounded-tr-none" 
+                        msg.role === "user"
+                          ? "bg-blue-600 text-white rounded-tr-none"
                           : "bg-slate-700 text-slate-100 rounded-tl-none border border-slate-600"
                       }`}
                     >
@@ -180,7 +201,7 @@ export default function InterviewSimulator() {
                 <div className="flex justify-start">
                   <div className="flex gap-4 max-w-[85%]">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shrink-0 opacity-70">
-                       <span className="text-xs font-bold text-white">AI</span>
+                      <span className="text-xs font-bold text-white">AI</span>
                     </div>
                     <div className="bg-slate-700 text-slate-400 rounded-3xl rounded-tl-none px-6 py-4 flex items-center gap-2 border border-slate-600">
                       <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -198,8 +219,8 @@ export default function InterviewSimulator() {
                 onClick={startRecording}
                 disabled={loading}
                 className={`group relative flex items-center justify-center w-20 h-20 rounded-full transition-all duration-300 ${
-                  isRecording 
-                  ? "bg-rose-500 scale-110 shadow-[0_0_40px_rgba(244,63,94,0.6)]" 
+                  isRecording
+                  ? "bg-rose-500 scale-110 shadow-[0_0_40px_rgba(244,63,94,0.6)]"
                   : "bg-teal-500 hover:bg-teal-400 hover:scale-105 shadow-lg shadow-teal-500/20"
                 } disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-teal-500`}
               >
@@ -211,7 +232,7 @@ export default function InterviewSimulator() {
                 )}
                 <svg className="w-8 h-8 text-white z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {isRecording ? (
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" fill="currentColor"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" fill="currentColor"/>
                   ) : (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                   )}

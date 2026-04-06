@@ -6,32 +6,41 @@
 
 ## Current Status
 
-The project has completed its **foundation sprint**. The design system, landing page, and route structure are all in place. The prototype interview loop is still running at `/interview` and is working. The next sprint focuses on making the product production-ready: replacing the macOS-only TTS, adding auth, and wiring up the database.
+The project has completed its **auth + dashboard sprint**. Users can register, sign in, and sign out. All app routes are protected by middleware. The prototype interview loop is accessible to authenticated users at `/interview`. The next sprint focuses on replacing the macOS-only TTS, adding the interview setup screen, and building post-session feedback.
 
 ### What Is Done ✅
 
 **Frontend:**
 - Design system — `globals.css` with full light/dark token system (zinc-950 dark, zinc-50 light, violet-600 accent)
-- Font setup — Plus Jakarta Sans (display), Geist Sans (UI), Geist Mono (mono) in `layout.tsx`
+- Font setup — Plus Jakarta Sans (display), Geist Sans (UI), Geist Mono (mono)
 - `ThemeProvider` (`next-themes`, dark default) + `ThemeToggle` (sun/moon) in nav
 - `src/lib/utils.ts` — `cn()` helper
-- Landing page at `/` — LandingNav, LandingHero (with mock interview card), HowItWorks, FeatureGrid, LandingCTA, LandingFooter
-- Interview prototype moved to `/interview` — all existing functionality intact
+- `src/lib/supabase/client.ts` — Supabase browser client
+- `src/lib/supabase/server.ts` — Supabase server client (SSR)
+- `src/middleware.ts` — route protection + token rotation
+- Landing page at `/` — LandingNav, LandingHero, HowItWorks, FeatureGrid, LandingCTA, LandingFooter
+- Auth — `/register` (RegisterForm), `/login` (LoginForm) with Zod + react-hook-form
+- Sign-out via Server Action (`app/actions/auth.ts`)
+- `(app)/layout.tsx` — AppTopbar with logo, nav, user name, sign-out
+- `(app)/dashboard` — personalized greeting, stat placeholders, empty state CTA
+- `(app)/interview` — prototype interview loop, now protected by middleware
 
 **Backend:**
 - FastAPI endpoints: `/api/health`, `/api/start`, `/api/chat`
 - Groq Whisper ASR (`asr.py`)
 - Groq LLaMA follow-up generation (`llm.py`)
 - ChromaDB RAG question bank (`rag.py`) — seeded with 4 starter questions
+- macOS `say` + ffmpeg TTS (`tts.py`) — ⚠️ still needs replacement
+
+**Database:**
+- `supabase/migrations/001_profiles.sql` — profiles table with RLS
 
 ### What Still Needs To Be Built
 
 1. **Replace TTS** (`backend/tts.py`) — macOS `say` blocks all cloud deployment ⚠️ **highest priority**
-2. **Auth** — Supabase sign-up / sign-in / session management
-3. **Database schema** — Supabase PostgreSQL tables
-4. **Interview setup screen** — job role, question type, difficulty before session starts
-5. **Post-session feedback** — `/api/feedback` endpoint + report page
-6. **Dashboard** — session history, scores, start new interview
+2. **Interview setup screen** — job role, question type, difficulty before session starts
+3. **Post-session feedback** — `/api/feedback` endpoint + report page
+4. **Wire dashboard to real data** — session history, scores from Supabase
 
 ---
 
@@ -78,45 +87,25 @@ Also add a `backend/nixpacks.toml` for Railway (ffmpeg is still needed for ASR a
 nixPkgs = ["ffmpeg"]
 ```
 
-### 2. Auth — Supabase Setup
+### 2. Interview Setup Screen
 
-Install Supabase packages:
+Once TTS is replaced, add the configuration screen before a session starts:
 
-```bash
-cd frontend && npm install @supabase/supabase-js @supabase/ssr
-```
-
-Files to create:
-- `src/lib/supabase/client.ts` — browser client (`createBrowserClient`)
-- `src/lib/supabase/server.ts` — server client (`createServerClient`)
-- `src/middleware.ts` — protect `(app)` routes; redirect unauthenticated to `/login`
-- `src/components/providers/SupabaseProvider.tsx` — seeds `auth-store` on mount
-- `src/store/auth-store.ts` — Zustand store: `{ user, isLoading, setUser, setLoading }`
-- `src/app/(auth)/layout.tsx` — centered auth layout
-- `src/app/(auth)/login/page.tsx` + `src/app/(auth)/signup/page.tsx`
-- `src/components/features/auth/LoginForm.tsx` + `SignupForm.tsx`
-- `src/lib/validations/auth.schema.ts` — Zod schemas
-
-Full auth flow spec: [`02-architecture/auth-flow.md`](./02-architecture/auth-flow.md).
-
-### 3. Database Schema
-
-Run in Supabase SQL editor. Full schema in [`02-architecture/data-flow.md`](./02-architecture/data-flow.md#4-database-schema):
-
-```sql
--- profiles, interview_sessions, session_messages, feedback_reports
--- + RLS policies for all tables
-```
-
-### 4. Interview Setup Screen
-
-Once auth is in place, add the configuration screen before a session starts:
-- Route: `src/app/(app)/interview/setup/page.tsx`
+- Route: `src/app/(app)/interview/setup/page.tsx` — URL: `/interview/setup`
 - Form: job role, question type (technical/behavioral/mixed), difficulty, num rounds
-- On submit: INSERT into `interview_sessions`, navigate to `/interview/:sessionId`
+- On submit: INSERT into `interview_sessions` (Supabase), navigate to `/interview/:sessionId`
 - Component: `src/components/features/interview/SetupForm.tsx`
+- Also requires: `supabase/migrations/002_interview_sessions.sql`
 
 Spec: [`05-features/03-interview-session.md`](./05-features/03-interview-session.md).
+
+### 3. Post-Session Feedback
+
+- Backend: `POST /api/feedback` — takes `session_id`, fetches messages from Supabase, generates structured report with Groq, saves to `feedback_reports` table
+- Frontend: `/report/:sessionId` — displays score, strengths, areas to improve, full transcript
+- Requires: `supabase/migrations/003_feedback_reports.sql`
+
+Spec: [`05-features/04-post-session-feedback.md`](./05-features/04-post-session-feedback.md).
 
 ---
 
@@ -133,12 +122,14 @@ Spec: [`05-features/03-interview-session.md`](./05-features/03-interview-session
 | Backend deployment | Railway |
 | Feedback timing | Post-session only — no inline scores during interview |
 | Design theme | "Midnight Focus" — zinc-950 dark, violet-600 accent, Plus Jakarta Sans display font |
-| Interview route (temp) | `/interview` — prototype lives here until auth + setup flow replaces it |
+| Auth strategy | Supabase Auth + `@supabase/ssr` cookie sessions; route protection via `middleware.ts` |
+| Profile storage | `user_metadata` (fallback) + `public.profiles` table (primary) |
 
 ---
 
 ## Archive
 
-Previous sprint archived at [`archive/MILESTONE-01-FOUNDATION.md`](./archive/MILESTONE-01-FOUNDATION.md).
+- [`archive/MILESTONE-01-FOUNDATION.md`](./archive/MILESTONE-01-FOUNDATION.md) — Design system, landing page, route structure
+- [`archive/MILESTONE-02-AUTH-DASHBOARD.md`](./archive/MILESTONE-02-AUTH-DASHBOARD.md) — Auth, protected routes, basic dashboard
 
-When this sprint is complete, archive this file to `archive/MILESTONE-02-AUTH-TTS.md` and replace with the next prompt.
+When this sprint is complete, archive this file to `archive/MILESTONE-03-TTS-INTERVIEW.md` and replace with the next prompt.

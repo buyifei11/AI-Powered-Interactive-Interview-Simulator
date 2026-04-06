@@ -42,7 +42,7 @@ export function LandingHero() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-5 animate-fade-in animate-delay-300">
               <Link
-                href="/interview"
+                href="/register"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all active:scale-95"
               >
                 Start practicing free
@@ -58,7 +58,7 @@ export function LandingHero() {
 
             {/* Trust line */}
             <p className="text-sm text-muted-foreground animate-fade-in animate-delay-400">
-              No sign-up required · Free to try · No judgment
+              Free to start · No credit card · No judgment
             </p>
           </div>
 

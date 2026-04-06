@@ -40,6 +40,8 @@ The stack is Next.js (App Router), FastAPI (Python), Supabase (auth + database),
 |        | ↳ [05-dashboard.md](./05-features/05-dashboard.md)                         | User dashboard: past sessions, progress, start new                        |
 | 06     | [Components](./06-components/)                                             | Design system, shadcn/ui conventions, component authoring                 |
 |        | ↳ [design-principles.md](./06-components/design-principles.md)             | Tokens, layout patterns, shadcn/ui conventions, responsive rules          |
+| 07     | [Conventions](./07-conventions/)                                           | Code style and documentation standards                                    |
+|        | ↳ [inline-documentation.md](./07-conventions/inline-documentation.md)     | Inline comment and docstring rules for TypeScript and Python              |
 | Future | [future-goals/](./future-goals/)                                           | Deferred features: video interview, resume personalization, analytics     |
 
 
@@ -47,11 +49,12 @@ The stack is Next.js (App Router), FastAPI (Python), Supabase (auth + database),
 
 ## Active Implementation Briefs
 
-See [NEXT-STEPS.md](./NEXT-STEPS.md) — current sprint: TTS replacement (ElevenLabs), Supabase auth, database schema.
+See [NEXT-STEPS.md](./NEXT-STEPS.md) — current sprint: TTS replacement (ElevenLabs), interview setup screen, post-session feedback.
 
 ## Completed Milestones
 
 - [Milestone 01 — Foundation](./archive/MILESTONE-01-FOUNDATION.md): Design system, landing page, route structure, ThemeProvider, fonts
+- [Milestone 02 — Auth & Dashboard](./archive/MILESTONE-02-AUTH-DASHBOARD.md): Supabase auth, protected routes, register/login/sign-out, basic dashboard
 
 ## Deferred Features
 
@@ -70,6 +73,7 @@ See [NEXT-STEPS.md](./NEXT-STEPS.md) — current sprint: TTS replacement (Eleven
 5. **[03-setup/environment-variables.md](./03-setup/environment-variables.md)** — configure all required env vars.
 6. **[02-architecture/data-flow.md](./02-architecture/data-flow.md)** — understand how data moves between frontend, backend, and external APIs.
 7. **[02-architecture/auth-flow.md](./02-architecture/auth-flow.md)** — understand the Supabase auth and session flow before touching any protected route.
-8. **[04-backend/api-reference.md](./04-backend/api-reference.md)** — reference for every API endpoint you will call from the frontend.
-9. **[05-features/](./05-features/)** — read the spec doc for the feature you are working on.
+8. **[07-conventions/inline-documentation.md](./07-conventions/inline-documentation.md)** — read before writing any code; defines how every file should be commented and documented.
+9. **[04-backend/api-reference.md](./04-backend/api-reference.md)** — reference for every API endpoint you will call from the frontend.
+10. **[05-features/](./05-features/)** — read the spec doc for the feature you are working on.
 

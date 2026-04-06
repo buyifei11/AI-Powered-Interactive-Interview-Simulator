@@ -95,7 +95,7 @@ POST /api/chat
 - Save user_transcript + ai_response to Supabase (session_messages)
 - Append user message to chat feed
 - Append AI message to chat feed
-- Auto-play TTS audio
+- Auto-play TTS audio (unlocked by silent buffer played on "Start Interview" click)
 - Update current_question for next round
     ↓
 [Idle state — ready for next round]
@@ -175,6 +175,6 @@ interface InterviewStore {
 
 - **Microphone permission denied:** Show a persistent error state with instructions for enabling microphone access in browser settings. Do not silently fail.
 - **Backend unreachable:** If `POST /api/chat` fails, show a retry option. Do not lose the current question — keep it displayed so the user can try again.
-- **TTS audio blocked by browser:** Some browsers block auto-play audio. Add a "Play again" button beneath each AI message in the feed as a fallback.
+- **TTS audio blocked by browser:** Browsers require a user gesture before allowing programmatic audio playback. The "Start Interview" button click is used to play a silent audio buffer via the Web Audio API, which unlocks autoplay for the session. Subsequent `audio.play()` calls will succeed. If playback still fails (e.g. the user navigated away and back), the `<audio controls>` player rendered inside each AI message bubble acts as a fallback.
 - **Page refresh during session:** The `sessionId` is in the URL. On re-load, fetch existing messages from `session_messages` (Supabase) and re-render the conversation. The session is resumable. The current in-flight audio is lost on refresh — that's acceptable.
 - **Network timeout on audio upload:** Large audio files on slow connections may timeout. Set a generous fetch timeout (30s) and show a "still processing..." indicator after 5s.

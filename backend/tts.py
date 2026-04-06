@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-FFMPEG_PATH = "/opt/homebrew/bin/ffmpeg"
+FFMPEG_PATH = "ffmpeg"
 
 def text_to_speech(text: str, output_path: str = "output.mp3"):
     """
