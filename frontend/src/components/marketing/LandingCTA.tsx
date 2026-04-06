@@ -25,15 +25,15 @@ export function LandingCTA() {
         </p>
 
         <Link
-          href="/interview"
+          href="/register"
           className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all active:scale-95"
         >
           Start practicing — it&apos;s free
           <ArrowRight className="w-4 h-4" />
         </Link>
 
-        <p className="mt-4 text-sm text-muted-foreground"> {/* Temporary disabled login until auth and backend technology selection is determined */}
-          No account needed. No credit card. Just practice.
+        <p className="mt-4 text-sm text-muted-foreground">
+          Free to start · No credit card · No judgment
         </p>
       </div>
     </section>

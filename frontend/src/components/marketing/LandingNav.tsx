@@ -32,13 +32,13 @@ export function LandingNav() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Link
-            href="/interview"
+            href="/login"
             className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             Sign in
           </Link>
           <Link
-            href="/interview"
+            href="/register"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 shadow-md shadow-violet-500/20 hover:shadow-violet-500/30 transition-all active:scale-95"
           >
             Start free

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,7 +39,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${plusJakarta.variable} h-full antialiased scroll-smooth`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <Toaster richColors position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );

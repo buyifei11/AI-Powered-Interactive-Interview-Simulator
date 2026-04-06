@@ -1,6 +1,6 @@
 # Project Structure
 
-> **Current state:** The landing page, design system, and route structure have been built. The frontend now has a proper component hierarchy, theme system (dark/light), and marketing page. The interview prototype has been moved to `/interview`. Auth, dashboard, and post-session feedback are still planned.
+> **Current state:** Auth (register, login, sign-out), route protection middleware, and a basic dashboard are implemented. The interview prototype has been moved to `(app)/interview` and is now protected. The landing page, design system, and route group structure are complete. Post-session feedback is still planned.
 >
 > **Note on `src/`:** The frontend uses the `src/` wrapper and the `@` import alias points to `src/`. All first-class application folders (`app/`, `components/`, `lib/`, `store/`, `types/`) live under `src/`.
 
@@ -24,12 +24,13 @@ AI-Powered-Interactive-Interview-Simulator/
 │   │
 │   └── src/
 │       │
-│       ├── middleware.ts                   [planned] Route protection: redirects unauthenticated
-│       │                                   users from (app) routes to /login
+│       ├── middleware.ts                   ✅ Route protection: blocks unauthenticated access to
+│       │                                   /dashboard and /interview; redirects authenticated users
+│       │                                   away from /login and /register. Also handles token rotation.
 │       │
 │       ├── app/                            Next.js App Router root
-│       │   ├── layout.tsx                  Root layout — mounts ThemeProvider; loads Geist Sans,
-│       │   │                               Geist Mono, Plus Jakarta Sans; sets metadata
+│       │   ├── layout.tsx                  Root layout — mounts ThemeProvider + Toaster; loads Geist
+│       │   │                               Sans, Geist Mono, Plus Jakarta Sans; sets metadata
 │       │   ├── globals.css                 Design token system (light/dark CSS vars), @theme inline
 │       │   │                               mappings for Tailwind, base resets, animation classes
 │       │   ├── favicon.ico
@@ -38,25 +39,20 @@ AI-Powered-Interactive-Interview-Simulator/
 │       │   │                               Composes: LandingNav, LandingHero, HowItWorks,
 │       │   │                               FeatureGrid, LandingCTA, LandingFooter
 │       │   │
-│       │   ├── interview/
-│       │   │   └── page.tsx                ✅ URL: /interview — prototype interview session
+│       │   ├── actions/
+│       │   │   └── auth.ts                 ✅ signOut() Server Action — clears session cookies
+│       │   │                               and redirects to / via server-side redirect
+│       │   │
+│       │   ├── (auth)/                     ✅ Public auth route group — no app topbar
+│       │   │   ├── layout.tsx              Centered layout: logo + glow background
+│       │   │   ├── login/page.tsx          ✅ URL: /login — renders LoginForm
+│       │   │   └── register/page.tsx       ✅ URL: /register — renders RegisterForm
+│       │   │
+│       │   ├── (app)/                      ✅ Authenticated application route group
+│       │   │   ├── layout.tsx              Fetches user + profile, renders AppTopbar
+│       │   │   ├── dashboard/page.tsx      ✅ URL: /dashboard — greeting, stats, empty state CTA
+│       │   │   └── interview/page.tsx      ✅ URL: /interview — prototype interview session
 │       │   │                               (voice recording, transcript, AI audio playback)
-│       │   │                               Temporary home until auth + setup flow is built
-│       │   │
-│       │   ├── (auth)/                     [planned] Public auth route group — no app shell
-│       │   │   ├── layout.tsx              Centered auth layout with brand logo
-│       │   │   ├── login/page.tsx          URL: /login
-│       │   │   └── signup/page.tsx         URL: /signup
-│       │   │
-│       │   ├── (app)/                      [planned] Authenticated application route group
-│       │   │   ├── layout.tsx              Protected layout — verifies session, renders AppShell
-│       │   │   │
-│       │   │   ├── dashboard/page.tsx      [planned] URL: /dashboard
-│       │   │   │
-│       │   │   └── interview/              [planned] Will replace current /interview prototype
-│       │   │       ├── setup/page.tsx      URL: /interview/setup — configuration form
-│       │   │       └── [sessionId]/
-│       │   │           └── page.tsx        URL: /interview/:sessionId — active session
 │       │   │
 │       │   └── report/
 │       │       └── [sessionId]/page.tsx    [planned] URL: /report/:sessionId — feedback report
@@ -66,16 +62,18 @@ AI-Powered-Interactive-Interview-Simulator/
 │       │   │                               `npx shadcn@latest add <component>`
 │       │   │
 │       │   ├── shared/                     App-wide layout and branding components
-│       │   │   ├── ThemeToggle.tsx         ✅ Sun/Moon toggle button (next-themes)
-│       │   │   ├── AppShell.tsx            [planned] Authenticated shell: sidebar + topbar
-│       │   │   ├── Sidebar.tsx             [planned] Desktop navigation sidebar
-│       │   │   ├── Topbar.tsx              [planned] Top bar: mobile menu, user menu
-│       │   │   └── BrandLogo.tsx           [planned] Theme-aware logo component
+│       │   │   └── ThemeToggle.tsx         ✅ Sun/Moon toggle button (next-themes)
 │       │   │
 │       │   ├── providers/                  Top-level client providers
 │       │   │   ├── ThemeProvider.tsx       ✅ next-themes wrapper (defaultTheme="dark")
-│       │   │   ├── SupabaseProvider.tsx    [planned] Supabase client + auth state seeding
 │       │   │   └── QueryProvider.tsx       [planned] React Query provider
+│       │   │
+│       │   ├── app/                        Authenticated app shell components
+│       │   │   └── AppTopbar.tsx           ✅ Logo, nav links, user name, theme toggle, sign out
+│       │   │
+│       │   ├── auth/                       Auth form components
+│       │   │   ├── LoginForm.tsx           ✅ Email + password with Zod + react-hook-form
+│       │   │   └── RegisterForm.tsx        ✅ First name, last name, email, password × 2
 │       │   │
 │       │   ├── marketing/                  Public landing-page components
 │       │   │   ├── LandingNav.tsx          ✅ Sticky nav: logo, anchor links, ThemeToggle, CTAs
@@ -87,15 +85,14 @@ AI-Powered-Interactive-Interview-Simulator/
 │       │   │   └── LandingFooter.tsx       ✅ Footer: logo, links, copyright
 │       │   │
 │       │   └── features/                   [planned] Feature-scoped UI components
-│       │       ├── auth/
-│       │       │   ├── LoginForm.tsx       [planned]
-│       │       │   └── SignupForm.tsx      [planned]
+│       │       ├── interview/
 │       │       │
 │       │       ├── interview/
 │       │       │   ├── SetupForm.tsx       [planned] Job role / type / difficulty config form
 │       │       │   ├── MicButton.tsx       [planned → refactor from prototype]
 │       │       │   ├── MessageFeed.tsx     [planned → refactor from prototype]
 │       │       │   └── AudioPlayer.tsx     [planned]
+│       │       │
 │       │       │
 │       │       ├── report/
 │       │       │   ├── ScoreCard.tsx       [planned]
@@ -110,8 +107,8 @@ AI-Powered-Interactive-Interview-Simulator/
 │       │   ├── utils.ts                    ✅ cn() helper (clsx + tailwind-merge)
 │       │   │
 │       │   ├── supabase/
-│       │   │   ├── client.ts               [planned] Supabase browser client
-│       │   │   └── server.ts               [planned] Supabase server client (SSR/middleware)
+│       │   │   ├── client.ts               ✅ Supabase browser client (Client Components only)
+│       │   │   └── server.ts               ✅ Supabase server client (Server Components, Actions)
 │       │   │
 │       │   ├── services/
 │       │   │   ├── interview.service.ts    [planned] API calls to FastAPI backend
@@ -132,6 +129,11 @@ AI-Powered-Interactive-Interview-Simulator/
 │       │
 │       └── types/
 │           └── index.ts                    [planned] Shared TypeScript models
+│
+├── supabase/
+│   └── migrations/
+│       └── 001_profiles.sql               ✅ Profiles table + RLS policies
+│                                           Run this in Supabase SQL Editor before first sign-up
 │
 └── backend/                                FastAPI (Python) service
     ├── main.py                             ✅ FastAPI app, CORS config, route registration

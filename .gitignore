@@ -43,6 +43,9 @@ venv/
 uploads/
 outputs/
 
+# ChromaDB persistent storage — runtime data, not source
+backend/data/chroma_db/
+
 # macOS
 .DS_Store
 .AppleDouble

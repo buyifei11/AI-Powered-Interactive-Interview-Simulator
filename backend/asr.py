@@ -3,7 +3,7 @@ import subprocess
 from typing import Optional
 from groq import Groq
 
-FFMPEG_PATH = "/opt/homebrew/bin/ffmpeg"
+FFMPEG_PATH = "ffmpeg"
 
 def get_client():
     api_key = os.environ.get("GROQ_API_KEY")
