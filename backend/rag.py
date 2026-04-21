@@ -62,11 +62,16 @@ def get_retriever():
         embedding_function=sentence_transformer_ef
     )
 
-def query_questions(query_text, n_results=2):
+def query_questions(query_text, job_role=None, n_results=2):
     collection = get_retriever()
+    where_clause = None
+    if job_role:
+        where_clause = {"$or": [{"job_role": job_role}, {"job_role": "any"}]}
+        
     results = collection.query(
         query_texts=[query_text],
-        n_results=n_results
+        n_results=n_results,
+        where=where_clause
     )
     return results
 

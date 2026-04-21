@@ -1,27 +1,35 @@
-// Interview page — core interview simulator at /interview.
-// Protected by middleware: only accessible to authenticated users.
-// This is the original prototype UI; will be redesigned in a future sprint.
-
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+
+const JOB_ROLES = [
+  "software engineering",
+  "machine learning",
+  "data science",
+  "data analyst",
+];
 
 export default function InterviewSimulator() {
+  const [jobRole, setJobRole] = useState(JOB_ROLES[0]);
+  const [isRoleSelected, setIsRoleSelected] = useState(false);
+
   const [session, setSession] = useState<{ id: string; currentQuestion: string } | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [messages, setMessages] = useState<{ role: "ai" | "user"; text: string; audioUrl?: string }[]>([]);
   const [loading, setLoading] = useState(false);
+  const [completed, setCompleted] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioUnlockedRef = useRef(false);
+  const globalStreamRef = useRef<MediaStream | null>(null);
 
   const BACKEND_URL = "http://localhost:8000";
 
   const unlockAudio = () => {
     if (audioUnlockedRef.current) return;
-    // Play a silent 1-sample audio to satisfy the browser's user-gesture
-    // requirement, so that subsequent programmatic audio.play() calls succeed.
     const ctx = new AudioContext();
     const buf = ctx.createBuffer(1, 1, 22050);
     const src = ctx.createBufferSource();
@@ -35,11 +43,25 @@ export default function InterviewSimulator() {
   const startInterview = async () => {
     unlockAudio();
     setLoading(true);
+    
+    // Request permissions upfront
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      globalStreamRef.current = stream;
+    } catch (err) {
+      console.error(err);
+      alert("Camera or Microphone access denied. This simulator requires both.");
+      setLoading(false);
+      return; // Do not proceed
+    }
+
+    setIsRoleSelected(true); // move past selection screen
+    
     try {
       const res = await fetch(`${BACKEND_URL}/api/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ job_role: "software engineering" }),
+        body: JSON.stringify({ job_role: jobRole }),
       });
       const data = await res.json();
       setSession({ id: data.session_id, currentQuestion: data.question });
@@ -52,6 +74,13 @@ export default function InterviewSimulator() {
     }
   };
 
+  useEffect(() => {
+    if (isRoleSelected && globalStreamRef.current && videoRef.current) {
+      videoRef.current.srcObject = globalStreamRef.current;
+      videoRef.current.play().catch(console.error);
+    }
+  }, [isRoleSelected]);
+
   const recordingStartTime = useRef<number>(0);
 
   const startRecording = async () => {
@@ -59,9 +88,18 @@ export default function InterviewSimulator() {
       stopRecording();
       return;
     }
+    
+    const stream = globalStreamRef.current;
+    if (!stream) {
+      alert("Camera stream not available.");
+      return;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      // Record audio only for the blob, capturing video individually
+      // Safari/iOS have quirks with MediaRecorder processing both, so we track Audio chunks.
+      const audioStream = new MediaStream(stream.getAudioTracks());
+      const mediaRecorder = new MediaRecorder(audioStream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
       recordingStartTime.current = Date.now();
@@ -74,21 +112,39 @@ export default function InterviewSimulator() {
 
       mediaRecorder.onstop = async () => {
         const duration = Date.now() - recordingStartTime.current;
-        // Too-short recordings produce garbled transcripts — ignore them.
         if (duration < 500 || audioChunksRef.current.length === 0) {
           console.warn("Recording too short, ignoring.");
           return;
         }
+        
+        let base64Image = "";
+        // Capture a frame from the video
+        if (videoRef.current && canvasRef.current) {
+          const video = videoRef.current;
+          const canvas = canvasRef.current;
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Get base64 without prefix
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+            base64Image = dataUrl.split(",")[1];
+          }
+        }
+        
+        // Stop all tracks completely, thus turning off camera light
+        // We removed stream.getTracks().forEach(t => t.stop()); so the camera stays on!
+
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        await handleAudioSubmit(audioBlob);
+        await handleAudioSubmit(audioBlob, base64Image);
       };
 
-      // timeslice=100ms so chunks are generated every 100ms while recording
       mediaRecorder.start(100);
       setIsRecording(true);
     } catch (error) {
       console.error(error);
-      alert("Microphone access denied.");
+      alert("Camera or Microphone access denied.");
     }
   };
 
@@ -96,11 +152,10 @@ export default function InterviewSimulator() {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
     }
   };
 
-  const handleAudioSubmit = async (audioBlob: Blob) => {
+  const handleAudioSubmit = async (audioBlob: Blob, base64Image: string) => {
     if (!session) return;
     setLoading(true);
 
@@ -108,6 +163,9 @@ export default function InterviewSimulator() {
     formData.append("audio", audioBlob, "recording.webm");
     formData.append("current_question", session.currentQuestion);
     formData.append("session_id", session.id);
+    if (base64Image) {
+      formData.append("video_frame", base64Image);
+    }
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/chat`, {
@@ -119,86 +177,101 @@ export default function InterviewSimulator() {
       setMessages((prev) => [
         ...prev,
         { role: "user", text: data.user_transcript },
-        { role: "ai", text: data.ai_response, audioUrl: `${BACKEND_URL}${data.audio_url}` },
+        { role: "ai", text: data.ai_response, audioUrl: data.audio_url ? `${BACKEND_URL}${data.audio_url}` : undefined },
       ]);
       setSession((prev) => prev ? { ...prev, currentQuestion: data.ai_response } : null);
 
+      if (data.completed) {
+        setCompleted(true);
+      }
+
       if (data.audio_url) {
         const audio = new Audio(`${BACKEND_URL}${data.audio_url}`);
-        audio.play().catch(() => {
-          // Autoplay blocked — user can use the audio controls in the chat bubble.
-        });
+        audio.play().catch(() => {});
       }
     } catch (error) {
       console.error(error);
-      alert("Error sending audio to backend.");
+      alert("Error sending audio/video to backend.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Pre-interview screen
+  if (!isRoleSelected) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+        <div className="flex-1 flex flex-col items-center justify-center space-y-8 p-4">
+          <div className="bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 max-w-lg text-center w-full">
+            <h2 className="text-3xl font-semibold mb-2 text-white">Customize Interview</h2>
+            <p className="text-slate-400 mb-8">Select the domain you want to practice for.</p>
+            
+            <div className="space-y-4 mb-8 text-left">
+              <label className="block text-sm font-medium text-slate-300 ml-1">Job Role</label>
+              <select 
+                value={jobRole}
+                onChange={(e) => setJobRole(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 text-white"
+              >
+                {JOB_ROLES.map(role => (
+                   <option key={role} value={role}>{role.replace(/\b\w/g, l => l.toUpperCase())}</option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={startInterview}
+              disabled={loading}
+              className="w-full relative overflow-hidden py-4 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-400 hover:to-blue-500 rounded-xl text-lg font-bold text-white transition-all shadow-lg hover:shadow-cyan-500/25 active:scale-95 disabled:opacity-50"
+            >
+              Start Session
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
-      <header className="py-6 border-b border-slate-800 text-center shadow-md bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
-        <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-blue-500">
-          AI Interview Simulator
+      <header className="py-4 border-b border-slate-800 text-center shadow-md bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
+        <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-blue-500">
+          {jobRole.replace(/\b\w/g, l => l.toUpperCase())} Interview
         </h1>
-        <p className="text-slate-400 mt-2 text-sm tracking-wide">Practice verbally with real-time AI feedback</p>
       </header>
 
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 md:p-8 flex flex-col">
-        {!session ? (
-          <div className="flex-1 flex flex-col items-center justify-center space-y-8 animate-in fade-in zoom-in duration-500">
-            <div className="bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 max-w-lg text-center">
-              <h2 className="text-2xl font-semibold mb-4 text-white">Ready for your interview?</h2>
-              <p className="text-slate-400 mb-8 leading-relaxed">
-                You will be connected to an AI interviewer. Please ensure your microphone is enabled.
-                Hold the microphone button to speak, and release it to submit your answer.
-              </p>
-              <button
-                onClick={startInterview}
-                disabled={loading}
-                className="w-full py-4 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-400 hover:to-blue-500 rounded-xl text-lg font-bold text-white transition-all shadow-lg hover:shadow-cyan-500/25 active:scale-95 disabled:opacity-50"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Connecting...
-                  </span>
-                ) : (
-                  "Start Interview"
-                )}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col bg-slate-800/50 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden relative">
-            <div className="flex-1 p-6 overflow-y-auto space-y-6 scroll-smooth">
-              {messages.map((msg, idx) => (
-                <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className="flex gap-4 max-w-[85%]">
-                    {msg.role === "ai" && (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg shrink-0 overflow-hidden">
-                        <span className="text-xs font-bold text-white">AI</span>
-                      </div>
-                    )}
-                    <div
-                      className={`rounded-3xl px-6 py-4 shadow-md ${
-                        msg.role === "user"
-                          ? "bg-blue-600 text-white rounded-tr-none"
-                          : "bg-slate-700 text-slate-100 rounded-tl-none border border-slate-600"
-                      }`}
-                    >
-                      <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-                      {msg.role === "ai" && msg.audioUrl && (
-                        <audio controls src={msg.audioUrl} className="mt-4 w-full h-8 opacity-80 hover:opacity-100 transition-opacity" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {loading && (
-                <div className="flex justify-start">
+      <main className="flex-1 max-w-5xl w-full mx-auto p-4 flex flex-col lg:flex-row gap-6">
+        
+        {/* Left Column: Chat feed */}
+        <div className="flex-1 flex flex-col bg-slate-800/50 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden relative min-h-[500px]">
+             
+          <div className="flex-1 p-6 overflow-y-auto space-y-6 scroll-smooth">
+            {messages.map((msg, idx) => (
+               <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+               <div className="flex gap-4 max-w-[85%]">
+                 {msg.role === "ai" && (
+                   <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg shrink-0 overflow-hidden">
+                     <span className="text-xs font-bold text-white">AI</span>
+                   </div>
+                 )}
+                 <div
+                   className={`rounded-3xl px-6 py-4 shadow-md ${
+                     msg.role === "user"
+                       ? "bg-blue-600 text-white rounded-tr-none"
+                       : "bg-slate-700 text-slate-100 rounded-tl-none border border-slate-600"
+                   }`}
+                 >
+                   <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                   {msg.role === "ai" && msg.audioUrl && (
+                     <audio controls src={msg.audioUrl} className="mt-4 w-full h-8 opacity-80 hover:opacity-100 transition-opacity" />
+                   )}
+                 </div>
+               </div>
+             </div>
+            ))}
+
+            {loading && (
+              <div className="flex justify-start">
                   <div className="flex gap-4 max-w-[85%]">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shrink-0 opacity-70">
                       <span className="text-xs font-bold text-white">AI</span>
@@ -210,10 +283,18 @@ export default function InterviewSimulator() {
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
+            )}
 
-            {/* Bottom Control Bar */}
+            {completed && (
+              <div className="mt-8 text-center bg-teal-900/40 border border-teal-500/50 p-6 rounded-2xl mx-auto max-w-md animate-in fade-in zoom-in">
+                 <h3 className="text-2xl font-bold text-teal-400 mb-2">Interview Completed</h3>
+                 <p className="text-slate-300">Thank you for your time. Your final feedback is above.</p>
+              </div>
+            )}
+          </div>
+          
+          {/* Bottom Control Bar */}
+          {!completed && (
             <div className="p-6 bg-slate-900 border-t border-slate-800 flex flex-col items-center justify-center gap-4 relative z-10">
               <button
                 onClick={startRecording}
@@ -239,11 +320,34 @@ export default function InterviewSimulator() {
                 </svg>
               </button>
               <div className="text-xs text-slate-400 font-medium">
-                {isRecording ? "Recording... Click to stop & send" : "Click to start speaking"}
+                {isRecording ? "Recording... Click to stop & evaluate" : "Click to start recording answer"}
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Right Column: Camera / Additional Info */}
+        <div className="w-full lg:w-72 shrink-0 flex flex-col gap-6">
+           <div className="bg-slate-800 rounded-3xl p-4 shadow-xl border border-slate-700">
+             <h3 className="text-sm font-semibold text-slate-300 mb-3 uppercase tracking-wider">Your Camera</h3>
+             <div className="relative aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-700/50 flex items-center justify-center">
+               <video 
+                 ref={videoRef} 
+                 className="absolute inset-0 w-full h-full object-cover opacity-100" 
+                 muted 
+                 playsInline 
+               />
+               <canvas ref={canvasRef} className="hidden" />
+               {isRecording && (
+                <div className="absolute top-2 right-2 w-3 h-3 bg-rose-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+               )}
+             </div>
+             <p className="mt-3 text-xs text-slate-400 leading-relaxed">
+               When you answer, the AI analyzes your facial expressions and tone to provide soft-skills feedback.
+             </p>
+           </div>
+        </div>
+
       </main>
     </div>
   );

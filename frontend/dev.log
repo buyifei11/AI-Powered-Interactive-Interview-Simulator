@@ -1,0 +1,684 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.38:3000
+- Environments: .env.local
+✓ Ready in 308ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/yifeibu/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/yifeibu/AI-Powered-Interactive-Interview-Simulator/frontend/package-lock.json
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+⨯ ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx:2:1
+Module not found: Can't resolve '@/lib/utils'
+  [90m1 |[0m ... [33mMic2[0m, [33mBrain[0m, [33mBa...[0m
+[31m[1m>[0m [90m2 |[0m ... cn } [36mfrom[0m [32m"@/li...[0m
+  [90m  |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m ...
+  [90m4 |[0m ...atures = [
+  [90m5 |[0m ...
+
+Import map: aliased to relative './src/lib/utils' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx:6:1
+Module not found: Can't resolve '@/lib/utils'
+  [90m4 |[0m ... [33mMoon[0m, [33mSun[0m } [36mfro.[0m.[32m.[0m
+  [90m5 |[0m ... useEffect, useS...
+[31m[1m>[0m [90m6 |[0m ... cn } [36mfrom[0m [32m"@/li...[0m
+  [90m  |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m ...
+  [90m8 |[0m ...[36munction[0m [33mThemeTog...[0m
+  [90m9 |[0m ...{ theme, setThem...
+
+Import map: aliased to relative './src/lib/utils' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+
+Import traces:
+  Client Component Browser:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx [Client Component Browser]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Client Component Browser]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Server Component]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx [Client Component SSR]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Client Component SSR]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Server Component]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ GET / 500 in 395ms (next.js: 184ms, proxy.ts: 71ms, application-code: 139ms)
+[browser] Uncaught Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx:2:1
+Module not found: Can't resolve '@/lib/utils'
+  1 | ... Mic2, Brain, Ba...
+> 2 | ... cn } from "@/li...
+    |    ^^^^^^^^^^^^^^^^^^^
+  3 | ...
+  4 | ...atures = [
+  5 | ...
+
+Import map: aliased to relative './src/lib/utils' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx:2:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx:2:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx:2:1
+Module not found: Can't resolve '@/lib/utils'
+  1 | ... Mic2, Brain, Ba...
+> 2 | ... cn } from "@/li...
+    |    ^^^^^^^^^^^^^^^^^^^
+  3 | ...
+  4 | ...atures = [
+  5 | ...
+
+Import map: aliased to relative './src/lib/utils' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx:6:1
+Module not found: Can't resolve '@/lib/utils'
+  4 | ... Moon, Sun } fro...
+  5 | ... useEffect, useS...
+> 6 | ... cn } from "@/li...
+    |    ^^^^^^^^^^^^^^^^^^^
+  7 | ...
+  8 | ...unction ThemeTog...
+  9 | ...{ theme, setThem...
+
+Import map: aliased to relative './src/lib/utils' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import traces:
+  Client Component Browser:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx [Client Component Browser]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Client Component Browser]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Server Component]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx [Client Component SSR]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Client Component SSR]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Server Component]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx:2:1
+Module not found: Can't resolve '@/lib/utils'
+  1 | ... Mic2, Brain, Ba...
+> 2 | ... cn } from "@/li...
+    |    ^^^^^^^^^^^^^^^^^^^
+  3 | ...
+  4 | ...atures = [
+  5 | ...
+
+Import map: aliased to relative './src/lib/utils' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx:6:1
+Module not found: Can't resolve '@/lib/utils'
+  4 | ... Moon, Sun } fro...
+  5 | ... useEffect, useS...
+> 6 | ... cn } from "@/li...
+    |    ^^^^^^^^^^^^^^^^^^^
+  7 | ...
+  8 | ...unction ThemeTog...
+  9 | ...{ theme, setThem...
+
+Import map: aliased to relative './src/lib/utils' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import traces:
+  Client Component Browser:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx [Client Component Browser]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Client Component Browser]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Server Component]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx [Client Component SSR]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Client Component SSR]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Server Component]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx:2:1
+Module not found: Can't resolve '@/lib/utils'
+  1 | ... Mic2, Brain, Ba...
+> 2 | ... cn } from "@/li...
+    |    ^^^^^^^^^^^^^^^^^^^
+  3 | ...
+  4 | ...atures = [
+  5 | ...
+
+Import map: aliased to relative './src/lib/utils' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/FeatureGrid.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx:6:1
+Module not found: Can't resolve '@/lib/utils'
+  4 | ... Moon, Sun } fro...
+  5 | ... useEffect, useS...
+> 6 | ... cn } from "@/li...
+    |    ^^^^^^^^^^^^^^^^^^^
+  7 | ...
+  8 | ...unction ThemeTog...
+  9 | ...{ theme, setThem...
+
+Import map: aliased to relative './src/lib/utils' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import traces:
+  Client Component Browser:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx [Client Component Browser]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Client Component Browser]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Server Component]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/shared/ThemeToggle.tsx [Client Component SSR]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Client Component SSR]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/marketing/LandingNav.tsx [Server Component]
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found 
+✓ Compiled in 614ms
+ GET / 200 in 561ms (next.js: 210ms, proxy.ts: 6ms, application-code: 344ms)
+⨯ ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  [90m13 |[0m ...} [36mfrom[0m [32m"next/na...[0m
+  [90m14 |[0m ...[33mf[0m, [33mLoader2[0m } [36mfr..[0m.
+[31m[1m>[0m [90m15 |[0m ...nt } [36mfrom[0m [32m"@/li...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^[0m
+  [90m16 |[0m ...[32m"@/lib/utils"[0m;
+  [90m17 |[0m ...
+  [90m18 |[0m ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ GET /register 500 in 763ms (next.js: 727ms, proxy.ts: 22ms, application-code: 14ms)
+⨯ ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  [90m13 |[0m ...} [36mfrom[0m [32m"next/na...[0m
+  [90m14 |[0m ...[33mf[0m, [33mLoader2[0m } [36mfr..[0m.
+[31m[1m>[0m [90m15 |[0m ...nt } [36mfrom[0m [32m"@/li...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^[0m
+  [90m16 |[0m ...[32m"@/lib/utils"[0m;
+  [90m17 |[0m ...
+  [90m18 |[0m ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ GET /register 500 in 14ms (next.js: 4ms, proxy.ts: 4ms, application-code: 5ms)
+[browser] Uncaught Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+ GET / 500 in 57ms (next.js: 9ms, proxy.ts: 36ms, application-code: 12ms)
+[browser] Uncaught Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+ GET / 500 in 27ms (next.js: 9ms, proxy.ts: 7ms, application-code: 10ms)
+[browser] Uncaught Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+ GET / 500 in 35ms (next.js: 4ms, proxy.ts: 18ms, application-code: 13ms)
+[browser] Uncaught Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+ GET / 500 in 12ms (next.js: 3ms, proxy.ts: 3ms, application-code: 6ms)
+[browser] Uncaught Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx:15:1
+Module not found: Can't resolve '@/lib/supabase/client'
+  13 | ...} from "next/na...
+  14 | ...f, Loader2 } fr...
+> 15 | ...nt } from "@/li...
+     |    ^^^^^^^^^^^^^^^^^^
+  16 | ..."@/lib/utils";
+  17 | ...
+  18 | ...
+
+Import map: aliased to relative './src/lib/supabase/client' inside of [project]/AI-Powered-Interactive-Interview-Simulator/frontend
+
+Import trace:
+  Server Component:
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/components/auth/RegisterForm.tsx
+    ./AI-Powered-Interactive-Interview-Simulator/frontend/src/app/(auth)/register/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+✓ Compiled in 402ms
+ GET / 200 in 251ms (next.js: 114ms, proxy.ts: 6ms, application-code: 132ms)
+ GET /register 200 in 66ms (next.js: 26ms, proxy.ts: 9ms, application-code: 31ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /login 200 in 559ms (next.js: 525ms, proxy.ts: 1913µs, application-code: 32ms)
+ GET /login 200 in 38ms (next.js: 3ms, proxy.ts: 3ms, application-code: 32ms)
+ GET /dashboard 200 in 1169ms (next.js: 616ms, proxy.ts: 124ms, application-code: 429ms)
+ GET /interview 200 in 743ms (next.js: 356ms, proxy.ts: 368ms, application-code: 19ms)
+✓ Compiled in 612ms
+ GET /interview 200 in 2.1s (next.js: 63ms, proxy.ts: 711ms, application-code: 1355ms)
+ GET / 200 in 426ms (next.js: 11ms, proxy.ts: 222ms, application-code: 192ms)
+ GET /dashboard 200 in 489ms (next.js: 8ms, proxy.ts: 176ms, application-code: 306ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /interview 200 in 307ms (next.js: 9ms, proxy.ts: 259ms, application-code: 38ms)
+✓ Compiled in 196ms
+ GET /interview 200 in 991ms (next.js: 31ms, proxy.ts: 507ms, application-code: 452ms)
+ GET / 200 in 1036ms (next.js: 39ms, proxy.ts: 894ms, application-code: 102ms)
+ GET /dashboard 200 in 691ms (next.js: 9ms, proxy.ts: 118ms, application-code: 565ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /interview 200 in 422ms (next.js: 8ms, proxy.ts: 390ms, application-code: 24ms)
+ GET / 200 in 1110ms (next.js: 35ms, proxy.ts: 910ms, application-code: 165ms)
+ GET /dashboard 200 in 534ms (next.js: 7ms, proxy.ts: 121ms, application-code: 406ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /interview 200 in 158ms (next.js: 10ms, proxy.ts: 127ms, application-code: 22ms)
+ GET / 200 in 1232ms (next.js: 24ms, proxy.ts: 1067ms, application-code: 141ms)
+ GET /dashboard 200 in 948ms (next.js: 13ms, proxy.ts: 120ms, application-code: 816ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /interview 200 in 191ms (next.js: 8ms, proxy.ts: 164ms, application-code: 19ms)
+ GET / 200 in 867ms (next.js: 59ms, proxy.ts: 696ms, application-code: 113ms)
+ GET /dashboard 200 in 731ms (next.js: 8ms, proxy.ts: 118ms, application-code: 604ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /interview 200 in 157ms (next.js: 13ms, proxy.ts: 125ms, application-code: 18ms)
+ GET /dashboard 200 in 1106ms (next.js: 19ms, proxy.ts: 612ms, application-code: 474ms)
+ GET /interview 200 in 150ms (next.js: 7ms, proxy.ts: 123ms, application-code: 19ms)
+ GET /dashboard 200 in 580ms (next.js: 6ms, proxy.ts: 164ms, application-code: 410ms)
