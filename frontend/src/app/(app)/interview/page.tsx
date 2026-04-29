@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 const JOB_ROLES = [
   "software engineering",
@@ -19,15 +20,77 @@ export default function InterviewSimulator() {
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(false);
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
+
+  // session is "active" if role selected + not completed
+  const interviewActive = isRoleSelected && !completed;
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioUnlockedRef = useRef(false);
   const globalStreamRef = useRef<MediaStream | null>(null);
+  const isEndingRef = useRef(false);
+  const endingSessionRef = useRef<string | null>(null);
 
   const BACKEND_URL = "http://localhost:8000";
 
+  const router = useRouter();
+
+  const stopLocalMedia = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+
+    setIsRecording(false);
+  
+    const stream = globalStreamRef.current;
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+      globalStreamRef.current = null;
+    }
+  
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  }, []);
+  
+  const endInterviewRemote = useCallback(
+    (sessionId?: string | null) => {
+      if (!sessionId) return;
+  
+      const payload = JSON.stringify({ session_id: sessionId });
+      const url = `${BACKEND_URL}/api/end`;
+  
+      if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: "application/json" });
+        navigator.sendBeacon(url, blob);
+      } else {
+        fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          keepalive: true,
+        }).catch(() => {});
+      }
+    },
+    []
+  );
+
+  const requestNavigation = useCallback(
+    (path: string) => {
+      if (!interviewActive) {
+        router.push(path);
+        return;
+      }
+      setPendingPath(path);
+      setConfirmOpen(true);
+    },
+    [interviewActive, router]
+  );
+  
   const unlockAudio = () => {
     if (audioUnlockedRef.current) return;
     const ctx = new AudioContext();
@@ -81,6 +144,46 @@ export default function InterviewSimulator() {
     }
   }, [isRoleSelected]);
 
+  useEffect(() => {
+    return () => {
+      stopLocalMedia(); // unmount only
+    };
+  }, [stopLocalMedia]);
+
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!interviewActive) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [interviewActive]);
+
+  useEffect(() => {
+    const onDocumentClick = (e: MouseEvent) => {
+      if (!interviewActive) return;
+      if (e.defaultPrevented) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+      const target = e.target as HTMLElement | null;
+      const anchor = target?.closest("a") as HTMLAnchorElement | null;
+      if (!anchor) return;
+      if (anchor.target && anchor.target !== "_self") return;
+
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#")) return;
+      if (!href.startsWith("/")) return;
+      if (href === window.location.pathname) return;
+
+      e.preventDefault();
+      requestNavigation(href);
+    };
+
+    document.addEventListener("click", onDocumentClick, true);
+    return () => document.removeEventListener("click", onDocumentClick, true);
+  }, [interviewActive, requestNavigation]);
+
   const recordingStartTime = useRef<number>(0);
 
   const startRecording = async () => {
@@ -111,6 +214,11 @@ export default function InterviewSimulator() {
       };
 
       mediaRecorder.onstop = async () => {
+        if(isEndingRef.current) {
+          audioChunksRef.current = [];
+          return;
+        }
+
         const duration = Date.now() - recordingStartTime.current;
         if (duration < 500 || audioChunksRef.current.length === 0) {
           console.warn("Recording too short, ignoring.");
@@ -183,6 +291,7 @@ export default function InterviewSimulator() {
 
       if (data.completed) {
         setCompleted(true);
+        stopLocalMedia(); // backend already ended it in /api/chat
       }
 
       if (data.audio_url) {
@@ -195,6 +304,25 @@ export default function InterviewSimulator() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleConfirmEndInterview = () => {
+    isEndingRef.current = true;
+    endingSessionRef.current = session?.id ?? null;
+
+    stopLocalMedia();
+    endInterviewRemote(endingSessionRef.current);
+
+    const destination = pendingPath ?? "/dashboard";
+    setPendingPath(null);
+    setConfirmOpen(false);
+    setCompleted(true);
+    router.push(destination);
+  };
+
+  const handleCancelEndInterview = () => {
+    setPendingPath(null);
+    setConfirmOpen(false);
   };
 
   // Pre-interview screen
@@ -322,6 +450,16 @@ export default function InterviewSimulator() {
               <div className="text-xs text-slate-400 font-medium">
                 {isRecording ? "Recording... Click to stop & evaluate" : "Click to start recording answer"}
               </div>
+
+              <button
+                onClick={() => {
+                  requestNavigation("/dashboard");
+                }}
+                disabled={loading || isRecording}
+                className="mt-1 px-4 py-2 rounded-lg border border-rose-500/50 text-rose-300 hover:bg-rose-500/10 disabled:opacity-50"
+              >
+                End Interview
+              </button>
             </div>
           )}
         </div>
@@ -349,6 +487,34 @@ export default function InterviewSimulator() {
         </div>
 
       </main>
+
+      {confirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white">End interview?</h3>
+            <p className="mt-2 text-sm text-slate-300">
+              {pendingPath
+                ? "Your interview is still active. Leave this page and end the session?"
+                : "Your current interview session will end immediately."}
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={handleCancelEndInterview}
+                className="px-4 py-2 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmEndInterview}
+                className="px-4 py-2 rounded-lg border border-rose-500/50 text-rose-300 hover:bg-rose-500/10"
+              >
+                End Interview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 # Next Steps — Active Implementation Prompt
 
+> Historical archive doc. Represents milestone-time plan, not current runtime truth. Use active docs (`README.md`, `NEXT-STEPS.md`, feature/backend references) for current behavior.
+
 > **How to use this file:** This is the single consolidated prompt for the next agent or dev session. Read this before opening any other file. When a milestone is complete, archive this file to `archive/` and replace it with the next prompt.
 
 ---

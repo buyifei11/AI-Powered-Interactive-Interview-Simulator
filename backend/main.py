@@ -31,6 +31,9 @@ os.makedirs("outputs", exist_ok=True)
 class StartInterviewRequest(BaseModel):
     job_role: str = "software engineering"
 
+class EndInterviewRequest(BaseModel):
+    session_id: str
+
 # In-memory session store (prototype use only)
 GLOBAL_SESSIONS = {}
 
@@ -106,6 +109,11 @@ async def start_interview(req: StartInterviewRequest):
     }
         
     return {"question": first_q, "session_id": session_id}
+
+@app.post("/api/end")
+async def end_interview(req: EndInterviewRequest):
+    ended = GLOBAL_SESSIONS.pop(req.session_id, None) is not None
+    return {"success": True, "ended": ended}
 
 @app.post("/api/chat")
 def chat(

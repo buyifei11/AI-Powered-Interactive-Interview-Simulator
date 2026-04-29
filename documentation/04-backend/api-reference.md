@@ -35,17 +35,13 @@ Initializes a new interview session and returns the first question.
 
 ```json
 {
-  "job_role": "software engineering",
-  "question_type": "technical",
-  "difficulty": "medium"
+  "job_role": "software engineering"
 }
 ```
 
 | Field | Type | Required | Default | Notes |
 |---|---|---|---|---|
 | `job_role` | string | No | `"software engineering"` | Used to query the RAG question bank |
-| `question_type` | string | No | `"technical"` | `"technical"` \| `"behavioral"` \| `"mixed"` |
-| `difficulty` | string | No | `"medium"` | `"easy"` \| `"medium"` \| `"hard"` |
 
 **Response:**
 
@@ -62,9 +58,9 @@ Initializes a new interview session and returns the first question.
 | `session_id` | string | UUID generated server-side. Frontend must pass this in all subsequent `/api/chat` calls |
 
 **Backend logic:**
-1. Queries ChromaDB RAG with `"initial intro question for {job_role}"`.
-2. Returns the top result. Falls back to a hardcoded intro question if RAG returns nothing.
-3. Generates a new `session_id` UUID.
+1. Queries ChromaDB RAG for role-scoped first question.
+2. Creates in-memory session state (`job_role`, `total_qs`, `follow_ups`, `history`, `asked_questions`).
+3. Returns first question + generated `session_id` UUID.
 
 **Used by:** Frontend — on "Start Interview" button click, after interview setup form submission.
 
@@ -72,7 +68,7 @@ Initializes a new interview session and returns the first question.
 
 ## `POST /api/chat`
 
-Processes one interview turn: receives user audio, transcribes it, generates a follow-up question, and synthesizes a TTS response.
+Processes one interview turn: receives user audio, transcribes it, generates interview response, and synthesizes TTS audio.
 
 **Request:** `multipart/form-data`
 
@@ -81,31 +77,34 @@ Processes one interview turn: receives user audio, transcribes it, generates a f
 | `audio` | File | Yes | Audio recording from browser (`.webm` format from MediaRecorder API) |
 | `current_question` | string | Yes | The question that was just asked to the user |
 | `session_id` | string | Yes | Session ID returned by `/api/start` |
+| `video_frame` | string | No | Base64 JPEG frame captured from webcam (`dataUrl.split(",")[1]`) |
 
 **Response:**
 
 ```json
 {
   "user_transcript": "I have been working as a software engineer for three years...",
-  "ai_response": "That's great. Can you tell me more about a specific project where you had to solve a particularly complex technical challenge?",
-  "audio_url": "/api/audio/abc123_uuid.mp3"
+  "ai_response": "Great context. Can you walk me through your design choices on that project?",
+  "audio_url": "/api/audio/abc123_uuid.mp3",
+  "completed": false
 }
 ```
 
 | Field | Type | Notes |
 |---|---|---|
 | `user_transcript` | string | Whisper transcription of the user's audio answer |
-| `ai_response` | string | LLaMA-generated follow-up question (no evaluation, no scores) |
+| `ai_response` | string | Interviewer response (follow-up or final score summary) |
 | `audio_url` | string | Relative path to the TTS audio file. Fetch via `GET /api/audio/{filename}` |
+| `completed` | boolean | `true` when session hits main-question cap and final score is returned |
 
 **Backend logic:**
 1. Saves audio blob to `uploads/{session_id}_{uuid}.webm`
-2. Converts `.webm` → `.mp3` via ffmpeg
-3. Transcribes `.mp3` via Groq Whisper → `user_transcript`
-4. Calls Groq LLaMA with interviewer system prompt → `ai_response`
-5. Calls ElevenLabs TTS → saves MP3 to `outputs/{session_id}_{uuid}.mp3`
-6. Cleans up temp upload files
-7. Returns response
+2. Transcribes audio via Groq Whisper → `user_transcript`
+3. Uses in-memory counters:
+   - max 2 follow-ups per main question
+   - max 10 main questions total
+4. If max reached, generates final score summary, returns `completed: true`, clears session.
+5. Otherwise generates next response, synthesizes TTS, returns `completed: false`.
 
 **Error cases:**
 
@@ -118,58 +117,36 @@ Processes one interview turn: receives user audio, transcribes it, generates a f
 
 ---
 
-## `POST /api/feedback` _(planned)_
+## `POST /api/end`
 
-Generates the post-session feedback report from the full interview transcript.
+Ends interview session early and clears in-memory session state.
 
 **Request body (JSON):**
 
 ```json
 {
-  "session_id": "550e8400-e29b-41d4-a716-446655440000",
-  "job_role": "software engineering",
-  "question_type": "technical",
-  "messages": [
-    { "role": "ai", "content": "Tell me about yourself." },
-    { "role": "user", "content": "I have been working as a software engineer for three years..." },
-    { "role": "ai", "content": "What was your biggest technical challenge?" },
-    { "role": "user", "content": "I once had to migrate a monolith to microservices..." }
-  ]
+  "session_id": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
 | Field | Type | Required | Notes |
 |---|---|---|---|
-| `session_id` | string | Yes | Used for logging/tracing |
-| `job_role` | string | Yes | Context for the LLM feedback prompt |
-| `question_type` | string | Yes | `"technical"` \| `"behavioral"` \| `"mixed"` |
-| `messages` | array | Yes | Full ordered Q&A transcript (role + content pairs) |
+| `session_id` | string | Yes | Session ID returned by `/api/start` |
 
 **Response:**
 
 ```json
 {
-  "overall_rating": 7,
-  "clarity_score": 8,
-  "structure_score": 6,
-  "relevance_score": 7,
-  "confidence_score": 7,
-  "suggestions": [
-    "Use the STAR method (Situation, Task, Action, Result) to structure behavioral answers more clearly.",
-    "Provide more specific metrics when describing achievements — e.g. 'reduced load time by 40%' rather than 'made it faster'.",
-    "Slow down when explaining technical concepts — your pacing was fast on the microservices answer."
-  ],
-  "transcript_summary": "The candidate demonstrated solid foundational knowledge of distributed systems and Python. Answers were generally relevant but lacked structured storytelling in behavioral questions."
+  "success": true,
+  "ended": true
 }
 ```
 
 **Backend logic:**
-1. Formats the full transcript into a structured prompt.
-2. Calls Groq LLaMA with the feedback report system prompt.
-3. Parses LLM response as JSON (with fallback if parsing fails).
-4. Returns the structured `FeedbackReport` object.
+1. Removes session from `GLOBAL_SESSIONS` by `session_id`.
+2. Returns whether session existed.
 
-**Used by:** Frontend — when user clicks "End Interview".
+**Used by:** Frontend — on explicit "End Interview" confirm or navigation-away confirmation.
 
 ---
 
