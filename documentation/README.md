@@ -8,7 +8,11 @@
 
 ---
 
-The AI Interview Simulator is a voice-first (and planned video-first) interview practice platform. Users configure a mock interview by job role and question type, answer questions verbally, and receive a comprehensive AI-generated feedback report after the session ends — not during. The core loop is: AI asks a question → user answers via microphone → AI transcribes and generates a follow-up → repeat → end of session → full debrief report.
+AI Interview Simulator is voice-first (planned video-first) interview practice platform.
+
+**Live now:** user selects job role, runs voice interview loop, gets AI follow-up responses, and receives final score summary at session completion.
+
+**Planned next:** dedicated setup variants (question type/difficulty), persisted session/report tables, and full post-session report page.
 
 The stack is Next.js (App Router), FastAPI (Python), Supabase (auth + database), Groq (ASR + LLM), ElevenLabs (TTS), ChromaDB (RAG question bank), deployed on Vercel (frontend) + Railway (backend).
 
@@ -49,7 +53,7 @@ The stack is Next.js (App Router), FastAPI (Python), Supabase (auth + database),
 
 ## Active Implementation Briefs
 
-See [NEXT-STEPS.md](./NEXT-STEPS.md) — current sprint: TTS replacement (ElevenLabs), interview setup screen, post-session feedback.
+See [NEXT-STEPS.md](./NEXT-STEPS.md) for current sprint and planned milestones.
 
 ## Completed Milestones
 

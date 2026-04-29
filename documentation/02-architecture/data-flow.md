@@ -13,7 +13,7 @@ This is the core real-time loop that runs during an active interview.
 ```
 Browser (Next.js)
     │
-    │  1. POST /api/start  { job_role, question_type, difficulty, session_id }
+    │  1. POST /api/start  { job_role }
     │  ←─────────────────────────────────────────────────────────────────────
     │       { question: string, session_id: string }
     │
@@ -25,6 +25,7 @@ Browser (Next.js)
     │       audio: Blob (webm)
     │       current_question: string
     │       session_id: string
+    │       video_frame?: base64 jpeg
     │
     ▼
 FastAPI Backend (Railway)
@@ -32,13 +33,14 @@ FastAPI Backend (Railway)
     │  a. Save audio blob to disk (uploads/{session_id}_{uuid}.webm)
     │  b. ffmpeg: .webm → .mp3
     │  c. Groq Whisper API → user_transcript: string
-    │  d. Groq LLaMA API → follow_up_question: string
-    │     (system prompt: "You are a professional interviewer. Ask ONE follow-up
-    │      question. Do NOT evaluate or score the answer.")
+    │  d. Groq LLaMA API → interviewer response
+    │  e. Apply session caps in memory:
+    │      - max 2 follow-ups per main question
+    │      - max 10 main questions total
     │  e. ElevenLabs TTS API → MP3 audio file (outputs/{session_id}_{uuid}.mp3)
-    │  f. Clean up temp audio files
+    │  f. If max reached: return final score summary + completed=true
     │
-    │  ← { user_transcript, ai_response, audio_url: "/api/audio/{filename}" }
+    │  ← { user_transcript, ai_response, audio_url, completed }
     │
     ▼
 Browser
@@ -48,59 +50,32 @@ Browser
     │  - Fetches audio_url → plays AI voice response
     │  - Updates current_question for next round
     │
-    └── [Loop continues until user clicks "End Interview"]
+    └── [Loop continues until user ends early or backend auto-completes]
 ```
 
 ---
 
-## 2. Session Persistence Flow
+## 2. Session + Auth Data Flow
 
-Session data is saved to Supabase at key lifecycle events.
+Auth/profile data uses Supabase. Live interview turn state currently uses backend in-memory sessions.
 
 ```
-Interview Setup Screen (Next.js)
+Next.js Middleware
     │
-    │  1. User submits config (job_role, question_type, difficulty)
-    │  2. Frontend calls Supabase: INSERT into interview_sessions
-    │       → returns session_id (UUID)
-    │  3. Navigate to /interview/:sessionId
+    │  validates Supabase auth session
+    │  redirects unauthenticated users from /dashboard and /interview to /login
     │
     ▼
-Active Interview Session
+Interview Session (FastAPI in-memory)
     │
-    │  After each round (ai_response received):
-    │  4. Frontend calls Supabase: INSERT into session_messages
-    │       { session_id, role: "user", content: user_transcript, turn_index }
-    │       { session_id, role: "ai", content: ai_response, turn_index }
-    │
-    ▼
-End Session (user clicks "End Interview")
-    │
-    │  5. Frontend calls FastAPI: POST /api/feedback
-    │       { session_id, messages: [...all Q&A pairs] }
+    │  POST /api/start creates GLOBAL_SESSIONS[session_id]
+    │  POST /api/chat updates counters/history in GLOBAL_SESSIONS[session_id]
+    │  POST /api/end deletes GLOBAL_SESSIONS[session_id]
     │
     ▼
-FastAPI Backend
+Profile Data (Supabase)
     │
-    │  6. Groq LLaMA generates full feedback report from transcript
-    │       (scores per dimension, suggestions, overall rating)
-    │
-    │  ← { feedback: FeedbackReport }
-    │
-    ▼
-Frontend
-    │
-    │  7. INSERT into feedback_reports (Supabase)
-    │       { session_id, scores, suggestions, overall_rating, transcript_summary }
-    │  8. UPDATE interview_sessions SET status = 'completed', ended_at = now()
-    │  9. Navigate to /report/:sessionId
-    │
-    ▼
-Dashboard
-    │
-    │  10. SELECT from interview_sessions WHERE user_id = auth.uid()
-    │       ORDER BY created_at DESC
-    │       → Displays session history cards
+    │  app layout reads profiles.first_name for topbar greeting
 ```
 
 ---
@@ -130,72 +105,28 @@ full_name   text
 created_at  timestamptz DEFAULT now()
 ```
 
-### `interview_sessions`
-
-```sql
-id              uuid         PRIMARY KEY DEFAULT gen_random_uuid()
-user_id         uuid         REFERENCES auth.users(id)
-job_role        text         NOT NULL                        -- e.g. "software engineering"
-question_type   text         NOT NULL                        -- "technical" | "behavioral" | "mixed"
-difficulty      text         NOT NULL                        -- "easy" | "medium" | "hard"
-status          text         DEFAULT 'active'                -- "active" | "completed"
-created_at      timestamptz  DEFAULT now()
-ended_at        timestamptz
-```
-
-### `session_messages`
-
-```sql
-id              uuid         PRIMARY KEY DEFAULT gen_random_uuid()
-session_id      uuid         REFERENCES interview_sessions(id)
-role            text         NOT NULL                        -- "user" | "ai"
-content         text         NOT NULL
-turn_index      integer      NOT NULL                        -- 0-indexed round number
-created_at      timestamptz  DEFAULT now()
-```
-
-### `feedback_reports`
-
-```sql
-id                  uuid   PRIMARY KEY DEFAULT gen_random_uuid()
-session_id          uuid   REFERENCES interview_sessions(id) UNIQUE
-overall_rating      integer                                  -- 1–10
-clarity_score       integer                                  -- 1–10
-structure_score     integer                                  -- 1–10
-relevance_score     integer                                  -- 1–10
-confidence_score    integer                                  -- 1–10
-suggestions         text[]                                   -- array of improvement suggestions
-transcript_summary  text                                     -- AI-generated summary
-raw_feedback        jsonb                                    -- full LLM response for debugging
-created_at          timestamptz DEFAULT now()
-```
+No interview session persistence tables are currently used by live flow.
+Current migration in repo defines `profiles` table only.
 
 ---
 
 ## 5. Row-Level Security (RLS)
 
-All Supabase tables have RLS enabled. Core policies:
+Current enforced RLS policies in repo apply to `profiles`.
 
 ```sql
--- Users can only read/write their own sessions
-CREATE POLICY "users_own_sessions" ON interview_sessions
-  FOR ALL USING (auth.uid() = user_id);
+-- Profile row belongs to authenticated user id
+CREATE POLICY "Users can view their own profile"
+ON public.profiles FOR SELECT
+USING (auth.uid() = id);
 
--- Users can only read messages for their own sessions
-CREATE POLICY "users_own_messages" ON session_messages
-  FOR ALL USING (
-    session_id IN (
-      SELECT id FROM interview_sessions WHERE user_id = auth.uid()
-    )
-  );
+CREATE POLICY "Users can insert their own profile"
+ON public.profiles FOR INSERT
+WITH CHECK (auth.uid() = id);
 
--- Same for feedback_reports
-CREATE POLICY "users_own_reports" ON feedback_reports
-  FOR ALL USING (
-    session_id IN (
-      SELECT id FROM interview_sessions WHERE user_id = auth.uid()
-    )
-  );
+CREATE POLICY "Users can update their own profile"
+ON public.profiles FOR UPDATE
+USING (auth.uid() = id);
 ```
 
 ---

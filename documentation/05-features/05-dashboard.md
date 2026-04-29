@@ -21,7 +21,7 @@ The home screen for authenticated users. The dashboard shows a summary of past i
 ### 1. Header / Welcome
 - "Welcome back, {first_name}" or "Good morning / afternoon, {first_name}"
 - Subtitle: "Ready for today's practice?"
-- Primary CTA: "Start New Interview" → `/interview/setup`
+- Primary CTA: "Start New Interview" → `/interview`
 
 ### 2. Stats Summary Bar
 Three at-a-glance metric cards (horizontal row):

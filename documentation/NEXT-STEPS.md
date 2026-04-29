@@ -6,7 +6,13 @@
 
 ## Current Status
 
-The project has completed its **auth + dashboard sprint**. Users can register, sign in, and sign out. All app routes are protected by middleware. The prototype interview loop is accessible to authenticated users at `/interview`. The next sprint focuses on replacing the macOS-only TTS, adding the interview setup screen, and building post-session feedback.
+Project has completed **auth + dashboard sprint** and now includes updated interview runtime flow:
+- protected `/interview` route
+- role selection + camera/mic permission
+- in-memory interview session lifecycle
+- manual early-end flow with confirmation modal + `POST /api/end`
+- leave-page protection (in-app interception + browser unload warning)
+- final score text returned from `POST /api/chat` on completion
 
 ### What Is Done ✅
 
@@ -26,7 +32,7 @@ The project has completed its **auth + dashboard sprint**. Users can register, s
 - `(app)/interview` — prototype interview loop, now protected by middleware
 
 **Backend:**
-- FastAPI endpoints: `/api/health`, `/api/start`, `/api/chat`
+- FastAPI endpoints: `/api/health`, `/api/start`, `/api/chat`, `/api/end`
 - Groq Whisper ASR (`asr.py`)
 - Groq LLaMA follow-up generation (`llm.py`)
 - ChromaDB RAG question bank (`rag.py`) — seeded with 4 starter questions
@@ -35,12 +41,13 @@ The project has completed its **auth + dashboard sprint**. Users can register, s
 **Database:**
 - `supabase/migrations/001_profiles.sql` — profiles table with RLS
 
-### What Still Needs To Be Built
+### What Still Needs To Be Built (Planned)
 
 1. **Replace TTS** (`backend/tts.py`) — macOS `say` blocks all cloud deployment ⚠️ **highest priority**
-2. **Interview setup screen** — job role, question type, difficulty before session starts
-3. **Post-session feedback** — `/api/feedback` endpoint + report page
-4. **Wire dashboard to real data** — session history, scores from Supabase
+2. **Expanded interview setup** — question type, difficulty, round config
+3. **Post-session feedback system** — `/api/feedback` endpoint + report page
+4. **Session/report persistence** — `interview_sessions`, `session_messages`, `feedback_reports` tables
+5. **Wire dashboard to real data** — session history and score trends from persisted tables
 
 ---
 
@@ -87,21 +94,20 @@ Also add a `backend/nixpacks.toml` for Railway (ffmpeg is still needed for ASR a
 nixPkgs = ["ffmpeg"]
 ```
 
-### 2. Interview Setup Screen
+### 2. Expanded Interview Setup (Planned)
 
 Once TTS is replaced, add the configuration screen before a session starts:
 
-- Route: `src/app/(app)/interview/setup/page.tsx` — URL: `/interview/setup`
-- Form: job role, question type (technical/behavioral/mixed), difficulty, num rounds
-- On submit: INSERT into `interview_sessions` (Supabase), navigate to `/interview/:sessionId`
-- Component: `src/components/features/interview/SetupForm.tsx`
-- Also requires: `supabase/migrations/002_interview_sessions.sql`
+- Keep current `/interview` role-select entry flow.
+- Add optional setup fields: question type, difficulty, num rounds.
+- Define whether setup stays in same page or split route.
+- If persistence added, include `supabase/migrations/002_interview_sessions.sql`.
 
 Spec: [`05-features/03-interview-session.md`](./05-features/03-interview-session.md).
 
-### 3. Post-Session Feedback
+### 3. Post-Session Feedback (Planned)
 
-- Backend: `POST /api/feedback` — takes `session_id`, fetches messages from Supabase, generates structured report with Groq, saves to `feedback_reports` table
+- Backend: `POST /api/feedback` — target endpoint for structured report generation
 - Frontend: `/report/:sessionId` — displays score, strengths, areas to improve, full transcript
 - Requires: `supabase/migrations/003_feedback_reports.sql`
 

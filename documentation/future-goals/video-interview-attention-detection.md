@@ -1,6 +1,7 @@
 # Future Goal: Video Interview & Attention Detection
 
 > **Status:** Deferred — not in active development. Preserve this spec for when the core MVP (voice interview + auth + feedback) is stable and launched.
+> **Note:** Planned architecture only. Endpoint/schema names in this file may differ from current production flow.
 
 ---
 

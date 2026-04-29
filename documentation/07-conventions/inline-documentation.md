@@ -239,9 +239,9 @@ async def chat(request: ChatRequest):
 ```
 
 ```python
-@app.post("/api/feedback")
-async def generate_feedback(request: FeedbackRequest):
-    """Generate and return a structured post-session feedback report."""
+@app.post("/api/end")
+async def end_interview(request: EndInterviewRequest):
+    """End interview session early and clear server-side session state."""
 ```
 
 ---

@@ -1,6 +1,7 @@
 # Future Goal: Resume Personalization
 
 > **Status:** Deferred — not in active development. Build after the core MVP is stable.
+> **Note:** Planned architecture only. Endpoint/schema names in this file may differ from current production flow.
 
 ---
 

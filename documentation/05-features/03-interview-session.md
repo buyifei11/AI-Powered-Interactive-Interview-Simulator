@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The core product experience. The user configures an interview (job role, question type, difficulty), then enters a live voice-based session where an AI interviewer asks questions, listens to spoken answers, and generates intelligent follow-up questions. No scores or feedback are shown during the session — the AI behaves purely as an interviewer.
+Core product experience. User picks job role, enters live voice interview, gets AI follow-ups, then receives final result after session completion.
 
 **Users:** Authenticated
 
@@ -12,65 +12,62 @@ The core product experience. The user configures an interview (job role, questio
 
 | URL | Page | Auth required |
 |-----|------|--------------|
-| `/interview/setup` | Interview configuration form | Yes |
-| `/interview/[sessionId]` | Active interview session | Yes |
+| `/interview` | Interview setup + active session in single page | Yes |
 
 ---
 
-## User Flow
+## Current User Flow
 
 ```
 /dashboard → "Start New Interview" button
     ↓
-/interview/setup — user selects:
-  - Job role (dropdown or text input): e.g. "Software Engineering", "Data Science", "Product Management"
-  - Question type: "Technical" | "Behavioral" | "Mixed"
-  - Difficulty: "Easy" | "Medium" | "Hard"
-  - (Optional) Number of rounds: 3 | 5 | 10
+/interview — user selects:
+  - Job role (dropdown)
     ↓
-Submit → create session in Supabase → navigate to /interview/:sessionId
+Start Session:
+  - Request camera + microphone permission up front
+  - POST /api/start with { job_role }
     ↓
-/interview/:sessionId — interview begins:
-  1. POST /api/start → first question returned + spoken aloud (TTS)
+/interview — interview begins:
+  1. First question shown in chat
   2. User clicks mic button → records answer → clicks to stop
-  3. POST /api/chat → transcript + follow-up question + TTS audio
-  4. Follow-up spoken aloud and displayed in chat feed
-  5. [Repeat from step 2 until user ends session]
+  3. Optional webcam frame captured and sent with audio
+  4. POST /api/chat → transcript + AI response + TTS audio + completed flag
+  5. AI response spoken aloud and displayed in chat feed
+  6. Repeat until completion or user ends session early
     ↓
-"End Interview" button → POST /api/feedback → navigate to /report/:sessionId
+Session end paths:
+  - Auto end after backend cap (10 main questions) → final score returned
+  - Manual end with confirm modal → POST /api/end → navigate to /dashboard
 ```
 
 ---
 
-## Interview Setup (`/interview/setup`)
+## Interview Setup (`/interview`)
 
 ### Form Fields
 
 | Field | Type | Options | Required |
 |---|---|---|---|
-| `job_role` | Select or text | "Software Engineering", "Data Science", "Product Management", "Marketing", "Finance", "Other (specify)" | Yes |
-| `question_type` | Radio/Select | "Technical", "Behavioral", "Mixed" | Yes |
-| `difficulty` | Radio/Select | "Easy", "Medium", "Hard" | Yes |
-| `num_rounds` | Select | 3, 5, 10 | No (default: 5) |
+| `job_role` | Select | `"software engineering"`, `"machine learning"`, `"data science"`, `"data analyst"` | Yes |
 
 ### On Submit
 
 1. Validate form with Zod
-2. `INSERT into interview_sessions { user_id, job_role, question_type, difficulty, status: 'active' }`
-3. Returns `session_id`
-4. Navigate to `/interview/:sessionId`
+2. Request camera/mic permission (`getUserMedia`)
+3. `POST /api/start { job_role }`
+4. Persist `session_id` + first question in local component state
 
 ---
 
-## Active Interview Session (`/interview/[sessionId]`)
+## Active Interview Session (`/interview`)
 
 ### Session Initialization
 
-On page load:
-1. Verify session exists and belongs to the current user (Supabase query)
-2. Call `POST /api/start { job_role, question_type, difficulty }` → first question
-3. Speak first question via TTS audio auto-play
-4. Display first question in chat feed
+On interview start:
+1. Call `POST /api/start { job_role }`
+2. Display first question in chat feed
+3. Open camera preview panel
 
 ### Recording Flow
 
@@ -88,11 +85,10 @@ MediaRecorder.stop()
 audioChunks → Blob (audio/webm)
     ↓
 [Loading state]
-FormData: { audio: Blob, current_question, session_id }
+FormData: { audio: Blob, current_question, session_id, video_frame? }
 POST /api/chat
     ↓
 [Response received]
-- Save user_transcript + ai_response to Supabase (session_messages)
 - Append user message to chat feed
 - Append AI message to chat feed
 - Auto-play TTS audio (unlocked by silent buffer played on "Start Interview" click)
@@ -111,12 +107,16 @@ POST /api/chat
 
 User clicks "End Interview" button:
 1. If currently recording → stop recording first (discard the in-progress answer)
-2. Show confirmation dialog: "Are you sure? Your session will end and you'll receive your feedback report."
+2. Show confirmation dialog.
 3. On confirm:
-   a. `POST /api/feedback` with full message history → FeedbackReport
-   b. `INSERT into feedback_reports` (Supabase)
-   c. `UPDATE interview_sessions SET status='completed', ended_at=now()`
-   d. Navigate to `/report/:sessionId`
+   a. stop local media tracks immediately (camera/mic off)
+   b. `POST /api/end { session_id }`
+   c. navigate to `/dashboard`
+
+Automatic completion path:
+- Backend ends session when max main-question cap reached.
+- `POST /api/chat` returns `{ completed: true, ai_response: final_score_text }`.
+- Frontend marks interview complete and stops local media.
 
 ---
 
@@ -124,36 +124,18 @@ User clicks "End Interview" button:
 
 | Action | Endpoint | Notes |
 |--------|----------|-------|
-| Get first question | `POST /api/start` | Called on session page load |
+| Get first question | `POST /api/start` | Called on Start Session |
 | Submit answer | `POST /api/chat` | Called after each recording stop |
+| End session early | `POST /api/end` | Called after end confirmation |
 | Fetch TTS audio | `GET /api/audio/{filename}` | Fetched from `audio_url` in chat response |
-| Generate feedback | `POST /api/feedback` | Called when user ends session |
 
 ---
 
-## State (`store/interview-store.ts`)
+## State (Current: local React state in page component)
 
 ```typescript
-interface InterviewStore {
-  sessionId: string | null
-  currentQuestion: string
-  messages: SessionMessage[]       // { role: 'user' | 'ai', content: string, audioUrl?: string }
-  isRecording: boolean
-  isLoading: boolean               // true while POST /api/chat is in-flight
-  numRounds: number
-  currentRound: number
-  jobRole: string
-  questionType: string
-  difficulty: string
-
-  // Actions
-  setSession: (config: SessionConfig) => void
-  addMessage: (message: SessionMessage) => void
-  setRecording: (recording: boolean) => void
-  setLoading: (loading: boolean) => void
-  setCurrentQuestion: (question: string) => void
-  reset: () => void
-}
+type Session = { id: string; currentQuestion: string } | null;
+type Message = { role: "ai" | "user"; text: string; audioUrl?: string };
 ```
 
 ---
@@ -162,12 +144,7 @@ interface InterviewStore {
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| `SetupForm` | `components/features/interview/` | Interview configuration form with Zod validation |
-| `MessageFeed` | `components/features/interview/` | Scrollable Q&A transcript display |
-| `MicButton` | `components/features/interview/` | Recording trigger: idle / recording / loading states |
-| `AudioPlayer` | `components/features/interview/` | Plays back TTS audio (wraps `<audio>` element) |
-| `EndInterviewButton` | `components/features/interview/` | Triggers end-session confirmation dialog |
-| `SessionProgress` | `components/features/interview/` | Shows round X of N indicator |
+| `InterviewSimulator` | `src/app/(app)/interview/page.tsx` | Setup + active interview + end confirmation modal |
 
 ---
 
@@ -176,5 +153,7 @@ interface InterviewStore {
 - **Microphone permission denied:** Show a persistent error state with instructions for enabling microphone access in browser settings. Do not silently fail.
 - **Backend unreachable:** If `POST /api/chat` fails, show a retry option. Do not lose the current question — keep it displayed so the user can try again.
 - **TTS audio blocked by browser:** Browsers require a user gesture before allowing programmatic audio playback. The "Start Interview" button click is used to play a silent audio buffer via the Web Audio API, which unlocks autoplay for the session. Subsequent `audio.play()` calls will succeed. If playback still fails (e.g. the user navigated away and back), the `<audio controls>` player rendered inside each AI message bubble acts as a fallback.
-- **Page refresh during session:** The `sessionId` is in the URL. On re-load, fetch existing messages from `session_messages` (Supabase) and re-render the conversation. The session is resumable. The current in-flight audio is lost on refresh — that's acceptable.
+- **Page refresh during session:** Frontend in-memory state resets. Browser shows native leave warning (`beforeunload`) while active, but if user confirms refresh, interview session UI state is not restored.
 - **Network timeout on audio upload:** Large audio files on slow connections may timeout. Set a generous fetch timeout (30s) and show a "still processing..." indicator after 5s.
+- **Leave-page while active:** in-app link clicks are intercepted; confirmation modal asks user before ending and navigating away.
+- **Refresh/close tab while active:** `beforeunload` native browser prompt shown.
