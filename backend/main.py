@@ -2,9 +2,10 @@ import os
 import random
 import shutil
 import uuid
+import json
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
@@ -132,65 +133,96 @@ def chat(
         "history": f"AI: {current_question}\n",
         "asked_questions": [current_question],
     })
-    
+
     audio_filename = f"uploads/{session_id}_{uuid.uuid4()}.webm"
     with open(audio_filename, "wb") as buffer:
         shutil.copyfileobj(audio.file, buffer)
-        
+
     user_transcript = asr.transcribe_audio(audio_filename)
     session["history"] += f"User: {user_transcript}\n"
-    
-    # Termination: user just answered the 10th main question → generate final score
-    if session["total_qs"] >= MAX_MAIN_QUESTIONS:
-        final_score_text = llm.generate_final_score(session["history"], candidate_name=session.get("last_name", ""))
-        tts_output_filename = f"outputs/{session_id}_final.mp3"
-        tts.text_to_speech(final_score_text, tts_output_filename)
-        GLOBAL_SESSIONS.pop(session_id, None)
-        return {
-            "user_transcript": user_transcript,
-            "ai_response": final_score_text,
-            "audio_url": f"/api/audio/{os.path.basename(tts_output_filename)}",
-            "completed": True
-        }
-    
-    # Follow-up limit: max 2 follow-ups per main question
+
     candidate_name = session.get("last_name", "")
-    name_ref = f" {candidate_name}," if candidate_name else ","
-    if session["follow_ups"] >= 2:
+    is_completed = session["total_qs"] >= MAX_MAIN_QUESTIONS
+    question_suffix = ""
+    increment_followup = False
+
+    if is_completed:
+        name_line = f"The candidate's name is {candidate_name}. " if candidate_name else ""
+        sys_prompt = (
+            "You are the hiring manager wrapping up an interview. "
+            f"{name_line}"
+            "Speak directly to the candidate in a warm, honest tone — as if giving feedback face to face. "
+            "Highlight two or three genuine strengths, mention one concrete area to work on. "
+            "End with a score out of 100 and a clear decision: Hired or Not Hired."
+        )
+        prompt = (
+            f"Here is the full interview transcript:\n{session['history']}\n\n"
+            "Please give your closing feedback, score, and decision."
+        )
+    elif session["follow_ups"] >= 2:
+        sys_prompt = "You are a warm, experienced technical interviewer giving conversational feedback."
         prompt = (
             f"Question: {current_question}\n\n"
             f"Candidate's answer: {user_transcript}\n\n"
-            f"Give 1-2 sentences of warm, specific feedback on this answer addressing the candidate as '{candidate_name}' if it feels natural. "
+            f"Give 1-2 sentences of warm feedback addressing the candidate as '{candidate_name}' if it feels natural. "
             "Do NOT ask another question. Close with a brief natural transition like 'Let's move on to the next one.'"
         )
-        feedback = llm.generate_response(prompt, system_prompt="You are a warm, experienced technical interviewer giving conversational feedback.")
-        
-        job_role = session["job_role"]
-        asked = session.get("asked_questions", [])
-        new_q = get_fresh_question(job_role, asked)
-        
+        new_q = get_fresh_question(session["job_role"], session.get("asked_questions", []))
         session["asked_questions"].append(new_q)
         session["follow_ups"] = 0
         session["total_qs"] += 1
-        ai_response_text = f"{feedback}\n\n**Question {session['total_qs']} of {MAX_MAIN_QUESTIONS}:** {new_q}"
+        question_suffix = f"\n\n**Question {session['total_qs']} of {MAX_MAIN_QUESTIONS}:** {new_q}"
     else:
-        eval_result = llm.evaluate_answer(current_question, user_transcript, image_base64=None, candidate_name=candidate_name)
-        ai_response_text = eval_result["evaluation_and_followup"]
-        session["follow_ups"] += 1
+        sys_prompt = (
+            "You are a sharp but warm technical interviewer having a real conversation. "
+            "React naturally: acknowledge a strength, probe a gap, show genuine curiosity. "
+            f"Address the candidate as '{candidate_name}' once if it feels natural. "
+            "Finish with exactly one concise follow-up question."
+        )
+        prompt = (
+            f"Question asked: {current_question}\n\n"
+            f"Candidate's answer: {user_transcript}\n\n"
+            "React naturally and ask one follow-up question."
+        )
+        increment_followup = True
 
-    session["history"] += f"AI: {ai_response_text}\n"
-    
-    tts_output_filename = f"outputs/{session_id}_{uuid.uuid4()}.mp3"
-    tts.text_to_speech(ai_response_text, tts_output_filename)
-    
-    GLOBAL_SESSIONS[session_id] = session
-    
-    return {
-        "user_transcript": user_transcript,
-        "ai_response": ai_response_text,
-        "audio_url": f"/api/audio/{os.path.basename(tts_output_filename)}",
-        "completed": False
-    }
+    def generate():
+        yield json.dumps({"type": "transcript", "text": user_transcript}) + "\n"
+
+        full_text = ""
+        try:
+            for chunk in llm.stream_chat(prompt, sys_prompt):
+                token = chunk.choices[0].delta.content or ""
+                if token:
+                    full_text += token
+                    yield json.dumps({"type": "token", "text": token}) + "\n"
+        except Exception as e:
+            yield json.dumps({"type": "error", "text": str(e)}) + "\n"
+            return
+
+        if question_suffix:
+            full_text += question_suffix
+            yield json.dumps({"type": "token", "text": question_suffix}) + "\n"
+
+        if increment_followup:
+            session["follow_ups"] += 1
+
+        session["history"] += f"AI: {full_text}\n"
+        if is_completed:
+            GLOBAL_SESSIONS.pop(session_id, None)
+        else:
+            GLOBAL_SESSIONS[session_id] = session
+
+        tts_output_filename = f"outputs/{session_id}_{uuid.uuid4()}.mp3"
+        tts.text_to_speech(full_text, tts_output_filename)
+
+        yield json.dumps({
+            "type": "done",
+            "audio_url": f"/api/audio/{os.path.basename(tts_output_filename)}",
+            "completed": is_completed,
+        }) + "\n"
+
+    return StreamingResponse(generate(), media_type="text/plain")
 
 @app.get("/api/audio/{filename}")
 async def get_audio(filename: str):
