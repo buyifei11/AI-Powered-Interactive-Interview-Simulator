@@ -401,7 +401,16 @@ export default function InterviewSimulator() {
                  >
                    <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                    {msg.role === "ai" && msg.audioUrl && (
-                     <audio controls src={msg.audioUrl} className="mt-4 w-full h-8 opacity-80 hover:opacity-100 transition-opacity" />
+                     <button
+                       onClick={() => new Audio(msg.audioUrl!).play()}
+                       className="mt-3 flex items-center gap-1.5 text-xs text-slate-400 hover:text-teal-400 transition-colors"
+                       title="Replay audio"
+                     >
+                       <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                       </svg>
+                       Replay
+                     </button>
                    )}
                  </div>
                </div>
