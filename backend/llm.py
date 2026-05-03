@@ -70,32 +70,51 @@ def generate_response(prompt: str, system_prompt: str = "", model: str = DEFAULT
         print(f"Error communicating with Groq API: {e}")
         return f"Error connecting to Groq API: {e}"
 
-def evaluate_answer(question: str, user_answer: str, context: str = "", image_base64: str = None) -> dict:
+def evaluate_answer(question: str, user_answer: str, context: str = "", image_base64: str = None, candidate_name: str = "") -> dict:
     """
-    Evaluates the user's answer and generates a follow-up.
+    Evaluates the user's answer and generates a follow-up question.
     """
-    sys_prompt = "You are an expert technical interviewer. Evaluate the candidate's answer based on relevance, structure, and clarity. Then, ask ONE short follow-up question."
-    
-    prompt = f"Question: {question}\n\nCandidate Answer: {user_answer}"
+    name_ref = f" {candidate_name}" if candidate_name else ""
+    sys_prompt = (
+        "You are a sharp but warm technical interviewer having a real conversation — "
+        "think of yourself as a thoughtful senior engineer, not a grading rubric. "
+        "React naturally to what the candidate just said: acknowledge something specific they did well, "
+        "gently probe any gap or vague point, and show genuine curiosity. "
+        "Keep the tone conversational and encouraging. "
+        f"Address the candidate as '{candidate_name}' once if it feels natural{', otherwise skip the name' if candidate_name else ''}. "
+        "Finish with exactly one concise follow-up question."
+    )
+
+    prompt = f"Question asked: {question}\n\nCandidate's answer: {user_answer}"
     if context:
-        prompt += f"\n\nContext/Topic info: {context}"
-        
-    prompt += "\n\nPlease provide a short evaluation and exactly one follow-up question."
-    
-    # Reverted to text-only evaluation to maintain the standard grading format without refusal mess
+        prompt += f"\n\nAdditional context: {context}"
+    prompt += f"\n\nReact naturally to {candidate_name + chr(39) + 's' if candidate_name else 'the'} answer and ask one follow-up question."
+
     response_text = generate_response(prompt, system_prompt=sys_prompt, image_base64=None)
-    
+
     return {
         "evaluation_and_followup": response_text
     }
 
-def generate_final_score(history_summary: str) -> str:
+def generate_final_score(history_summary: str, candidate_name: str = "") -> str:
     """
-    Generates a conclusive remark based on the interview performance.
+    Generates a wrap-up with score and hiring decision.
     """
-    sys_prompt = "You are the hiring manager concluding the interview round. Provide a brief summary of the candidate's performance, a final score out of 100, and a final decision: whether they are 'Hired' or 'Not Hired'."
-    prompt = f"Here is the summary of the candidate's answers and behaviors:\n{history_summary}\nPlease generate your final score and decision."
-    
+    name_line = f"The candidate's name is {candidate_name}. " if candidate_name else ""
+    sys_prompt = (
+        "You are the hiring manager wrapping up an interview. "
+        f"{name_line}"
+        "Speak directly to the candidate in a warm, honest tone — as if giving feedback face to face. "
+        "Highlight two or three genuine strengths you noticed throughout the conversation, "
+        "then mention one concrete area to work on. "
+        "End with an overall score out of 100 and a clear hiring decision: Hired or Not Hired. "
+        "Keep it personal, specific, and encouraging regardless of the outcome."
+    )
+    prompt = (
+        f"Here is the full interview transcript:\n{history_summary}\n\n"
+        "Please give your closing feedback, score, and decision."
+    )
+
     return generate_response(prompt, system_prompt=sys_prompt)
 
 if __name__ == "__main__":

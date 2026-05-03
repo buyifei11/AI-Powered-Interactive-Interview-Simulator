@@ -31,6 +31,7 @@ os.makedirs("outputs", exist_ok=True)
 
 class StartInterviewRequest(BaseModel):
     job_role: str = "software engineering"
+    last_name: str = ""
 
 class EndInterviewRequest(BaseModel):
     session_id: str
@@ -102,6 +103,7 @@ async def start_interview(req: StartInterviewRequest):
     
     GLOBAL_SESSIONS[session_id] = {
         "job_role": req.job_role,
+        "last_name": req.last_name,
         "total_qs": 1,
         "follow_ups": 0,
         "history": f"AI: {first_q}\n",
@@ -124,6 +126,7 @@ def chat(
 ):
     session = GLOBAL_SESSIONS.get(session_id, {
         "job_role": "software engineering",
+        "last_name": "",
         "total_qs": 1,
         "follow_ups": 0,
         "history": f"AI: {current_question}\n",
@@ -139,7 +142,7 @@ def chat(
     
     # Termination: user just answered the 10th main question → generate final score
     if session["total_qs"] >= MAX_MAIN_QUESTIONS:
-        final_score_text = llm.generate_final_score(session["history"])
+        final_score_text = llm.generate_final_score(session["history"], candidate_name=session.get("last_name", ""))
         tts_output_filename = f"outputs/{session_id}_final.mp3"
         tts.text_to_speech(final_score_text, tts_output_filename)
         GLOBAL_SESSIONS.pop(session_id, None)
@@ -151,14 +154,16 @@ def chat(
         }
     
     # Follow-up limit: max 2 follow-ups per main question
+    candidate_name = session.get("last_name", "")
+    name_ref = f" {candidate_name}," if candidate_name else ","
     if session["follow_ups"] >= 2:
         prompt = (
             f"Question: {current_question}\n\n"
-            f"Candidate Answer: {user_transcript}\n\n"
-            "Provide 1-2 sentences of brief feedback on this answer. "
-            "Do NOT ask another question. End with: 'Great, let\'s move on.'"
+            f"Candidate's answer: {user_transcript}\n\n"
+            f"Give 1-2 sentences of warm, specific feedback on this answer addressing the candidate as '{candidate_name}' if it feels natural. "
+            "Do NOT ask another question. Close with a brief natural transition like 'Let's move on to the next one.'"
         )
-        feedback = llm.generate_response(prompt, system_prompt="You are an expert interviewer.")
+        feedback = llm.generate_response(prompt, system_prompt="You are a warm, experienced technical interviewer giving conversational feedback.")
         
         job_role = session["job_role"]
         asked = session.get("asked_questions", [])
@@ -169,7 +174,7 @@ def chat(
         session["total_qs"] += 1
         ai_response_text = f"{feedback}\n\n**Question {session['total_qs']} of {MAX_MAIN_QUESTIONS}:** {new_q}"
     else:
-        eval_result = llm.evaluate_answer(current_question, user_transcript, image_base64=None)
+        eval_result = llm.evaluate_answer(current_question, user_transcript, image_base64=None, candidate_name=candidate_name)
         ai_response_text = eval_result["evaluation_and_followup"]
         session["follow_ups"] += 1
 

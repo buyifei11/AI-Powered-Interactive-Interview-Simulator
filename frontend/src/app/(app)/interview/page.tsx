@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 const JOB_ROLES = [
   "software engineering",
@@ -13,6 +14,7 @@ const JOB_ROLES = [
 export default function InterviewSimulator() {
   const [jobRole, setJobRole] = useState(JOB_ROLES[0]);
   const [isRoleSelected, setIsRoleSelected] = useState(false);
+  const [lastName, setLastName] = useState("");
 
   const [session, setSession] = useState<{ id: string; currentQuestion: string } | null>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -124,7 +126,7 @@ export default function InterviewSimulator() {
       const res = await fetch(`${BACKEND_URL}/api/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ job_role: jobRole }),
+        body: JSON.stringify({ job_role: jobRole, last_name: lastName }),
       });
       const data = await res.json();
       setSession({ id: data.session_id, currentQuestion: data.question });
@@ -136,6 +138,14 @@ export default function InterviewSimulator() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      const meta = data.user?.user_metadata;
+      if (meta?.last_name) setLastName(meta.last_name);
+    });
+  }, []);
 
   useEffect(() => {
     if (isRoleSelected && globalStreamRef.current && videoRef.current) {
