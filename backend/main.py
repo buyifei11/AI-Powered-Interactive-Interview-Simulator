@@ -18,7 +18,6 @@ import rag
 
 app = FastAPI(title="AI Interview Simulator API")
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -37,17 +36,12 @@ class StartInterviewRequest(BaseModel):
 class EndInterviewRequest(BaseModel):
     session_id: str
 
-# In-memory session store (prototype use only)
 GLOBAL_SESSIONS = {}
 
 MAX_MAIN_QUESTIONS = 10
-SIMILARITY_THRESHOLD = 0.25  # Cosine distance below this means "too similar" (0 = identical, 1 = orthogonal)
+SIMILARITY_THRESHOLD = 0.25
 
 def get_fresh_question(job_role: str, asked_questions: list) -> str:
-    """
-    Query RAG for candidate questions, filter out already-asked or too-similar
-    ones, then randomly select from the remaining valid pool.
-    """
     collection = rag.get_retriever()
     try:
         count = collection.count()
@@ -60,11 +54,9 @@ def get_fresh_question(job_role: str, asked_questions: list) -> str:
         return "Could you describe a challenging project you recently worked on?"
 
     candidates = res["documents"][0] if res and res["documents"] else []
-
     if not candidates:
         return "Could you describe a challenging project you recently worked on?"
 
-    # Collect all valid candidates first, then pick randomly
     valid = []
     for candidate in candidates:
         if candidate in asked_questions:
@@ -86,7 +78,6 @@ def get_fresh_question(job_role: str, asked_questions: list) -> str:
 
     if valid:
         return random.choice(valid)
-
     return "Can you walk me through a project where you had significant technical ownership?"
 
 
@@ -96,12 +87,8 @@ async def health_check():
 
 @app.post("/api/start")
 async def start_interview(req: StartInterviewRequest):
-    """
-    Initializes a new interview session and returns the first question.
-    """
     first_q = get_fresh_question(req.job_role, [])
     session_id = str(uuid.uuid4())
-    
     GLOBAL_SESSIONS[session_id] = {
         "job_role": req.job_role,
         "last_name": req.last_name,
@@ -110,7 +97,6 @@ async def start_interview(req: StartInterviewRequest):
         "history": f"AI: {first_q}\n",
         "asked_questions": [first_q],
     }
-        
     return {"question": first_q, "session_id": session_id}
 
 @app.post("/api/end")
@@ -173,12 +159,27 @@ def chat(
         session["total_qs"] += 1
         question_suffix = f"\n\n**Question {session['total_qs']} of {MAX_MAIN_QUESTIONS}:** {new_q}"
     else:
-        sys_prompt = (
-            "You are a sharp but warm technical interviewer having a real conversation. "
-            "React naturally: acknowledge a strength, probe a gap, show genuine curiosity. "
-            f"Address the candidate as '{candidate_name}' once if it feels natural. "
-            "Finish with exactly one concise follow-up question."
-        )
+        name_clause = f"Address the candidate as '{candidate_name}' once if it feels natural. " if candidate_name else ""
+        if video_frame:
+            sys_prompt = (
+                "You are a sharp but warm AI interview coach. "
+                "This session is conducted with the candidate's explicit consent to webcam-based coaching. "
+                "You are given a screenshot from their webcam captured during their answer. "
+                "(1) Briefly acknowledge one specific thing they said well. "
+                "(2) If the webcam frame clearly shows something coaching-relevant — eye contact with the camera, "
+                "confident posture, or relaxed expression — add exactly one short sentence of non-verbal feedback "
+                "(skip entirely if the frame is unclear or nothing notable is visible). "
+                "(3) Probe the most interesting gap or vague point in their answer. "
+                f"{name_clause}"
+                "End with exactly one concise follow-up question. Keep the tone conversational and encouraging."
+            )
+        else:
+            sys_prompt = (
+                "You are a sharp but warm technical interviewer having a real conversation. "
+                "React naturally: acknowledge a strength, probe a gap, show genuine curiosity. "
+                f"{name_clause}"
+                "Finish with exactly one concise follow-up question."
+            )
         prompt = (
             f"Question asked: {current_question}\n\n"
             f"Candidate's answer: {user_transcript}\n\n"
@@ -191,11 +192,19 @@ def chat(
 
         full_text = ""
         try:
-            for chunk in llm.stream_chat(prompt, sys_prompt):
-                token = chunk.choices[0].delta.content or ""
-                if token:
+            if video_frame and increment_followup:
+                # Vision path: OpenAI gpt-4o-mini (non-streaming), then fake-stream result
+                vision_text = llm.generate_response(prompt, system_prompt=sys_prompt, image_base64=video_frame)
+                for i in range(0, len(vision_text), 4):
+                    token = vision_text[i:i + 4]
                     full_text += token
                     yield json.dumps({"type": "token", "text": token}) + "\n"
+            else:
+                for chunk in llm.stream_chat(prompt, sys_prompt):
+                    token = chunk.choices[0].delta.content or ""
+                    if token:
+                        full_text += token
+                        yield json.dumps({"type": "token", "text": token}) + "\n"
         except Exception as e:
             yield json.dumps({"type": "error", "text": str(e)}) + "\n"
             return
