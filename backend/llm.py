@@ -117,6 +117,27 @@ def generate_final_score(history_summary: str, candidate_name: str = "") -> str:
 
     return generate_response(prompt, system_prompt=sys_prompt)
 
+def stream_chat(prompt: str, system_prompt: str = "", model: str = DEFAULT_MODEL):
+    """
+    Yields raw Groq stream chunks for text-only requests.
+    Caller iterates and reads chunk.choices[0].delta.content.
+    """
+    client = get_client()
+    if not client:
+        return
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": prompt})
+    stream = client.chat.completions.create(
+        messages=messages,
+        model=model,
+        temperature=0.7,
+        max_tokens=512,
+        stream=True,
+    )
+    yield from stream
+
 if __name__ == "__main__":
     print("Testing Groq API connection...")
     res = generate_response("Hello, what is 2+2?", "You are a helpful assistant.", DEFAULT_MODEL)

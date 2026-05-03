@@ -20,6 +20,7 @@ export default function InterviewSimulator() {
   const [isRecording, setIsRecording] = useState(false);
   const [messages, setMessages] = useState<{ role: "ai" | "user"; text: string; audioUrl?: string }[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [completed, setCompleted] = useState(false);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -281,38 +282,71 @@ export default function InterviewSimulator() {
     formData.append("audio", audioBlob, "recording.webm");
     formData.append("current_question", session.currentQuestion);
     formData.append("session_id", session.id);
-    if (base64Image) {
-      formData.append("video_frame", base64Image);
-    }
+    if (base64Image) formData.append("video_frame", base64Image);
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/chat`, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
+      const res = await fetch(`${BACKEND_URL}/api/chat`, { method: "POST", body: formData });
+      if (!res.ok || !res.body) throw new Error("Stream unavailable");
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "user", text: data.user_transcript },
-        { role: "ai", text: data.ai_response, audioUrl: data.audio_url ? `${BACKEND_URL}${data.audio_url}` : undefined },
-      ]);
-      setSession((prev) => prev ? { ...prev, currentQuestion: data.ai_response } : null);
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let firstToken = true;
+      let aiText = "";
 
-      if (data.completed) {
-        setCompleted(true);
-        stopLocalMedia(); // backend already ended it in /api/chat
-      }
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      if (data.audio_url) {
-        const audio = new Audio(`${BACKEND_URL}${data.audio_url}`);
-        audio.play().catch(() => {});
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          let event: Record<string, string>;
+          try { event = JSON.parse(line); } catch { continue; }
+
+          if (event.type === "transcript") {
+            setMessages((prev) => [...prev, { role: "user", text: event.text }]);
+          } else if (event.type === "token") {
+            if (firstToken) {
+              firstToken = false;
+              setLoading(false);
+              setIsStreaming(true);
+              setMessages((prev) => [...prev, { role: "ai", text: event.text }]);
+              aiText = event.text;
+            } else {
+              aiText += event.text;
+              setMessages((prev) => {
+                const next = [...prev];
+                next[next.length - 1] = { role: "ai", text: aiText };
+                return next;
+              });
+            }
+          } else if (event.type === "done") {
+            const audioUrl = event.audio_url ? `${BACKEND_URL}${event.audio_url}` : undefined;
+            setMessages((prev) => {
+              const next = [...prev];
+              next[next.length - 1] = { role: "ai", text: aiText, audioUrl };
+              return next;
+            });
+            setSession((prev) => prev ? { ...prev, currentQuestion: aiText } : null);
+            if (event.completed === "true" || event.completed === true as unknown as string) {
+              setCompleted(true);
+              stopLocalMedia();
+            }
+            if (audioUrl) new Audio(audioUrl).play().catch(() => {});
+            setIsStreaming(false);
+          }
+        }
       }
     } catch (error) {
       console.error(error);
       alert("Error sending audio/video to backend.");
     } finally {
       setLoading(false);
+      setIsStreaming(false);
     }
   };
 
@@ -417,19 +451,19 @@ export default function InterviewSimulator() {
              </div>
             ))}
 
-            {loading && (
+            {loading && !isStreaming && (
               <div className="flex justify-start">
-                  <div className="flex gap-4 max-w-[85%]">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shrink-0 opacity-70">
-                      <span className="text-xs font-bold text-white">AI</span>
-                    </div>
-                    <div className="bg-slate-700 text-slate-400 rounded-3xl rounded-tl-none px-6 py-4 flex items-center gap-2 border border-slate-600">
-                      <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                    </div>
+                <div className="flex gap-4 max-w-[85%]">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shrink-0 opacity-70">
+                    <span className="text-xs font-bold text-white">AI</span>
+                  </div>
+                  <div className="bg-slate-700 text-slate-400 rounded-3xl rounded-tl-none px-6 py-4 flex items-center gap-2 border border-slate-600">
+                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                   </div>
                 </div>
+              </div>
             )}
 
             {completed && (
@@ -445,7 +479,7 @@ export default function InterviewSimulator() {
             <div className="p-6 bg-slate-900 border-t border-slate-800 flex flex-col items-center justify-center gap-4 relative z-10">
               <button
                 onClick={startRecording}
-                disabled={loading}
+                disabled={loading || isStreaming}
                 className={`group relative flex items-center justify-center w-20 h-20 rounded-full transition-all duration-300 ${
                   isRecording
                   ? "bg-rose-500 scale-110 shadow-[0_0_40px_rgba(244,63,94,0.6)]"
@@ -474,7 +508,7 @@ export default function InterviewSimulator() {
                 onClick={() => {
                   requestNavigation("/dashboard");
                 }}
-                disabled={loading || isRecording}
+                disabled={loading || isStreaming || isRecording}
                 className="mt-1 px-4 py-2 rounded-lg border border-rose-500/50 text-rose-300 hover:bg-rose-500/10 disabled:opacity-50"
               >
                 End Interview
