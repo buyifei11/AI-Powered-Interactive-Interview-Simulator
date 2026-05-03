@@ -1,4 +1,5 @@
 import os
+import random
 import shutil
 import uuid
 from fastapi import FastAPI, UploadFile, File, Form
@@ -42,16 +43,15 @@ SIMILARITY_THRESHOLD = 0.25  # Cosine distance below this means "too similar" (0
 
 def get_fresh_question(job_role: str, asked_questions: list) -> str:
     """
-    Query RAG for candidate questions, then filter out any that are too similar
-    to already-asked questions using ChromaDB cosine distance.
+    Query RAG for candidate questions, filter out already-asked or too-similar
+    ones, then randomly select from the remaining valid pool.
     """
     collection = rag.get_retriever()
-    # Pull a wider pool to filter from
     try:
         count = collection.count()
         res = collection.query(
             query_texts=[f"interview question for {job_role}"],
-            n_results=min(20, count),
+            n_results=min(50, count),
             where={"$or": [{"job_role": job_role}, {"job_role": "any"}]}
         )
     except Exception:
@@ -62,10 +62,8 @@ def get_fresh_question(job_role: str, asked_questions: list) -> str:
     if not candidates:
         return "Could you describe a challenging project you recently worked on?"
 
-    if not asked_questions:
-        return candidates[0]
-
-    # Check each candidate against the already-asked questions via similarity
+    # Collect all valid candidates first, then pick randomly
+    valid = []
     for candidate in candidates:
         if candidate in asked_questions:
             continue
@@ -82,9 +80,11 @@ def get_fresh_question(job_role: str, asked_questions: list) -> str:
             except Exception:
                 pass
         if not too_similar:
-            return candidate
+            valid.append(candidate)
 
-    # Fallback if all were filtered
+    if valid:
+        return random.choice(valid)
+
     return "Can you walk me through a project where you had significant technical ownership?"
 
 

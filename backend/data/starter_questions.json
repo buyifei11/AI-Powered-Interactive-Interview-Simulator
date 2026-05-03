@@ -1,482 +1,151 @@
 [
-  {
-    "id": 1,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "easy",
-    "question": "Please give a 1-minute self-introduction.",
-    "type": "behavioral"
-  },
-  {
-    "id": 2,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "medium",
-    "question": "Introduce your most representative project and elaborate on your specific contributions.",
-    "type": "behavioral"
-  },
-  {
-    "id": 3,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "easy",
-    "question": "Why are you applying for this role?",
-    "type": "behavioral"
-  },
-  {
-    "id": 4,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "easy",
-    "question": "Why are you interested in our company?",
-    "type": "behavioral"
-  },
-  {
-    "id": 5,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "medium",
-    "question": "Which part of your previous experience best demonstrates your fit for this role?",
-    "type": "behavioral"
-  },
-  {
-    "id": 6,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "medium",
-    "question": "What is your career plan for the next 3 to 5 years?",
-    "type": "behavioral"
-  },
-  {
-    "id": 7,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "medium",
-    "question": "What is the most challenging project you have worked on recently?",
-    "type": "behavioral"
-  },
-  {
-    "id": 8,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "easy",
-    "question": "What do you consider to be your greatest strength?",
-    "type": "behavioral"
-  },
-  {
-    "id": 9,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "medium",
-    "question": "Tell me about a time you disagreed with a teammate. How did you resolve it?",
-    "type": "behavioral"
-  },
-  {
-    "id": 10,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "medium",
-    "question": "If a PM or manager proposes a requirement that you think is unreasonable, what would you do?",
-    "type": "behavioral"
-  },
-  {
-    "id": 11,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "medium",
-    "question": "How do you explain a complex technical concept to a non-technical audience?",
-    "type": "behavioral"
-  },
-  {
-    "id": 12,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "hard",
-    "question": "Tell me about a time you failed or made a severe mistake. What did you learn and how did you remedy it?",
-    "type": "behavioral"
-  },
-  {
-    "id": 13,
-    "job_role": "any",
-    "topic": "Behavioral",
-    "difficulty": "hard",
-    "question": "How do you balance 'speed' and 'quality' when working under pressure?",
-    "type": "behavioral"
-  },
-  {
-    "id": 14,
-    "job_role": "any",
-    "topic": "General Technical",
-    "difficulty": "easy",
-    "question": "Which programming languages are you most familiar with, and which one do you use most often?",
-    "type": "technical"
-  },
-  {
-    "id": 15,
-    "job_role": "any",
-    "topic": "General Technical",
-    "difficulty": "easy",
-    "question": "What is the difference between a list and a tuple in Python?",
-    "type": "technical"
-  },
-  {
-    "id": 16,
-    "job_role": "any",
-    "topic": "General Technical",
-    "difficulty": "medium",
-    "question": "What is time complexity? What are some common time complexities?",
-    "type": "technical"
-  },
-  {
-    "id": 17,
-    "job_role": "data analyst",
-    "topic": "General Technical",
-    "difficulty": "easy",
-    "question": "What is the difference between WHERE and HAVING in SQL?",
-    "type": "technical"
-  },
-  {
-    "id": 18,
-    "job_role": "data analyst",
-    "topic": "General Technical",
-    "difficulty": "medium",
-    "question": "Can you explain the difference between INNER JOIN, LEFT JOIN, and RIGHT JOIN?",
-    "type": "technical"
-  },
-  {
-    "id": 19,
-    "job_role": "data science",
-    "topic": "General Technical",
-    "difficulty": "medium",
-    "question": "What is overfitting, and how do you prevent or solve it?",
-    "type": "technical"
-  },
-  {
-    "id": 20,
-    "job_role": "data science",
-    "topic": "General Technical",
-    "difficulty": "medium",
-    "question": "What is the purpose of train, validation, and test splits?",
-    "type": "technical"
-  },
-  {
-    "id": 21,
-    "job_role": "data science",
-    "topic": "General Technical",
-    "difficulty": "hard",
-    "question": "Explain precision, recall, F1-score, and AUC, and discuss when each is appropriate to use.",
-    "type": "technical"
-  },
-  {
-    "id": 22,
-    "job_role": "data science",
-    "topic": "General Technical",
-    "difficulty": "hard",
-    "question": "What is data leakage in machine learning?",
-    "type": "technical"
-  },
-  {
-    "id": 23,
-    "job_role": "data science",
-    "topic": "General Technical",
-    "difficulty": "hard",
-    "question": "Explain the bias-variance tradeoff.",
-    "type": "technical"
-  },
-  {
-    "id": 24,
-    "job_role": "data analyst",
-    "topic": "Data Analyst",
-    "difficulty": "medium",
-    "question": "Write a SQL query to find the first order date for each user.",
-    "type": "technical"
-  },
-  {
-    "id": 25,
-    "job_role": "data analyst",
-    "topic": "Data Analyst",
-    "difficulty": "medium",
-    "question": "How would you write a SQL query to calculate DAU (Daily Active Users) over the past 7 days?",
-    "type": "technical"
-  },
-  {
-    "id": 26,
-    "job_role": "data analyst",
-    "topic": "Data Analyst",
-    "difficulty": "hard",
-    "question": "Write a SQL query to calculate user next-day retention.",
-    "type": "technical"
-  },
-  {
-    "id": 27,
-    "job_role": "data analyst",
-    "topic": "Data Analyst",
-    "difficulty": "medium",
-    "question": "Which SQL window functions have you used? Examples: ROW_NUMBER(), RANK(), LAG()?",
-    "type": "technical"
-  },
-  {
-    "id": 28,
-    "job_role": "data analyst",
-    "topic": "Data Analyst",
-    "difficulty": "medium",
-    "question": "How do you define a North Star metric for an e-commerce platform?",
-    "type": "technical"
-  },
-  {
-    "id": 29,
-    "job_role": "data analyst",
-    "topic": "Data Analyst",
-    "difficulty": "hard",
-    "question": "If the PM says 'Conversion rate has dropped recently,' how would you approach the analysis?",
-    "type": "technical"
-  },
-  {
-    "id": 30,
-    "job_role": "data analyst",
-    "topic": "Data Analyst",
-    "difficulty": "hard",
-    "question": "What is cohort analysis and when should it be used?",
-    "type": "technical"
-  },
-  {
-    "id": 31,
-    "job_role": "data analyst",
-    "topic": "Data Analyst",
-    "difficulty": "medium",
-    "question": "What is the general workflow of an A/B test?",
-    "type": "technical"
-  },
-  {
-    "id": 32,
-    "job_role": "data analyst",
-    "topic": "Data Analyst",
-    "difficulty": "hard",
-    "question": "What are Type I and Type II errors?",
-    "type": "technical"
-  },
-  {
-    "id": 33,
-    "job_role": "data science",
-    "topic": "Data Scientist",
-    "difficulty": "medium",
-    "question": "What are the core differences between Random Forest and XGBoost?",
-    "type": "technical"
-  },
-  {
-    "id": 34,
-    "job_role": "data science",
-    "topic": "Data Scientist",
-    "difficulty": "medium",
-    "question": "Explain the difference between bagging and boosting.",
-    "type": "technical"
-  },
-  {
-    "id": 35,
-    "job_role": "data science",
-    "topic": "Data Scientist",
-    "difficulty": "hard",
-    "question": "What is the core idea behind SVM, and what is the kernel trick?",
-    "type": "technical"
-  },
-  {
-    "id": 36,
-    "job_role": "data science",
-    "topic": "Data Scientist",
-    "difficulty": "medium",
-    "question": "What is the principle behind PCA? Why can it be used for dimensionality reduction?",
-    "type": "technical"
-  },
-  {
-    "id": 37,
-    "job_role": "data science",
-    "topic": "Data Scientist",
-    "difficulty": "medium",
-    "question": "What is the Central Limit Theorem?",
-    "type": "technical"
-  },
-  {
-    "id": 38,
-    "job_role": "data science",
-    "topic": "Data Scientist",
-    "difficulty": "hard",
-    "question": "How do you deal with class imbalance in a dataset?",
-    "type": "technical"
-  },
-  {
-    "id": 39,
-    "job_role": "data science",
-    "topic": "Data Scientist",
-    "difficulty": "hard",
-    "question": "If a model performs well on the training set but poorly on the test set, how would you troubleshoot?",
-    "type": "technical"
-  },
-  {
-    "id": 40,
-    "job_role": "data science",
-    "topic": "Data Scientist",
-    "difficulty": "hard",
-    "question": "How would you design a machine learning model to predict user churn?",
-    "type": "technical"
-  },
-  {
-    "id": 41,
-    "job_role": "machine learning",
-    "topic": "MLE",
-    "difficulty": "medium",
-    "question": "What is the difference between feature drift and concept drift?",
-    "type": "technical"
-  },
-  {
-    "id": 42,
-    "job_role": "machine learning",
-    "topic": "MLE",
-    "difficulty": "hard",
-    "question": "How do you prevent training-serving skew?",
-    "type": "technical"
-  },
-  {
-    "id": 43,
-    "job_role": "machine learning",
-    "topic": "MLE",
-    "difficulty": "medium",
-    "question": "What is the differences between batch inference and real-time inference?",
-    "type": "technical"
-  },
-  {
-    "id": 44,
-    "job_role": "machine learning",
-    "topic": "MLE",
-    "difficulty": "hard",
-    "question": "What is shadow deployment and canary deployment?",
-    "type": "technical"
-  },
-  {
-    "id": 45,
-    "job_role": "machine learning",
-    "topic": "MLE",
-    "difficulty": "hard",
-    "question": "In deep learning, what occurs when the batch size is too large vs too small?",
-    "type": "technical"
-  },
-  {
-    "id": 46,
-    "job_role": "machine learning",
-    "topic": "MLE",
-    "difficulty": "hard",
-    "question": "What is LoRA? Why is it considered resource-efficient?",
-    "type": "technical"
-  },
-  {
-    "id": 47,
-    "job_role": "machine learning",
-    "topic": "MLE",
-    "difficulty": "medium",
-    "question": "Explain the general layout and flow of a Retrieval-Augmented Generation (RAG) system.",
-    "type": "technical"
-  },
-  {
-    "id": 48,
-    "job_role": "software engineering",
-    "topic": "SDE",
-    "difficulty": "medium",
-    "question": "What is the difference between an Array and a Linked List?",
-    "type": "technical"
-  },
-  {
-    "id": 49,
-    "job_role": "software engineering",
-    "topic": "SDE",
-    "difficulty": "medium",
-    "question": "What are the common differences between Depth-First Search (DFS) and Breadth-First Search (BFS)?",
-    "type": "technical"
-  },
-  {
-    "id": 50,
-    "job_role": "software engineering",
-    "topic": "SDE",
-    "difficulty": "hard",
-    "question": "Explain the concept of Dynamic Programming. How does it contrast with a Greedy algorithm?",
-    "type": "technical"
-  },
-  {
-    "id": 51,
-    "job_role": "software engineering",
-    "topic": "SDE",
-    "difficulty": "hard",
-    "question": "How would you detect if a linked list has a cycle?",
-    "type": "technical"
-  },
-  {
-    "id": 52,
-    "job_role": "software engineering",
-    "topic": "SDE",
-    "difficulty": "medium",
-    "question": "What are the three main pillars of Object-Oriented Programming (OOP)?",
-    "type": "technical"
-  },
-  {
-    "id": 53,
-    "job_role": "software engineering",
-    "topic": "SDE",
-    "difficulty": "medium",
-    "question": "What is the difference between a GET and a POST HTTP request?",
-    "type": "technical"
-  },
-  {
-    "id": 54,
-    "job_role": "software engineering",
-    "topic": "SDE",
-    "difficulty": "hard",
-    "question": "How would you handle high concurrent requests hitting your application layer?",
-    "type": "technical"
-  },
-  {
-    "id": 55,
-    "job_role": "software engineering",
-    "topic": "SDE",
-    "difficulty": "hard",
-    "question": "Design a highly scalable rate limiter.",
-    "type": "technical"
-  },
-  {
-    "id": 56,
-    "job_role": "any",
-    "topic": "Deep Dive",
-    "difficulty": "hard",
-    "question": "In your most recent project, what was the primary business problem you aimed to solve?",
-    "type": "behavioral"
-  },
-  {
-    "id": 57,
-    "job_role": "any",
-    "topic": "Deep Dive",
-    "difficulty": "hard",
-    "question": "Why did you choose this specific framework or method instead of alternatives in your project?",
-    "type": "behavioral"
-  },
-  {
-    "id": 58,
-    "job_role": "any",
-    "topic": "Deep Dive",
-    "difficulty": "hard",
-    "question": "What was the single most difficult technical challenge you encountered, and how did you overcome it?",
-    "type": "behavioral"
-  },
-  {
-    "id": 59,
-    "job_role": "any",
-    "topic": "Deep Dive",
-    "difficulty": "hard",
-    "question": "If you could do that project all over again, what architectural or modeling step would you change?",
-    "type": "behavioral"
-  },
-  {
-    "id": 60,
-    "job_role": "any",
-    "topic": "Deep Dive",
-    "difficulty": "hard",
-    "question": "How did you guarantee that your project conclusion/metrics were correct and not just anecdotal inferences?",
-    "type": "behavioral"
-  }
+  {"id":1,"job_role":"any","topic":"Behavioral","difficulty":"easy","question":"Please give a 1-minute self-introduction.","type":"behavioral"},
+  {"id":2,"job_role":"any","topic":"Behavioral","difficulty":"medium","question":"Introduce your most representative project and elaborate on your specific contributions.","type":"behavioral"},
+  {"id":3,"job_role":"any","topic":"Behavioral","difficulty":"easy","question":"Why are you applying for this role?","type":"behavioral"},
+  {"id":4,"job_role":"any","topic":"Behavioral","difficulty":"easy","question":"Why are you interested in our company?","type":"behavioral"},
+  {"id":5,"job_role":"any","topic":"Behavioral","difficulty":"medium","question":"Which part of your previous experience best demonstrates your fit for this role?","type":"behavioral"},
+  {"id":6,"job_role":"any","topic":"Behavioral","difficulty":"medium","question":"What is your career plan for the next 3 to 5 years?","type":"behavioral"},
+  {"id":7,"job_role":"any","topic":"Behavioral","difficulty":"medium","question":"What is the most challenging project you have worked on recently?","type":"behavioral"},
+  {"id":8,"job_role":"any","topic":"Behavioral","difficulty":"easy","question":"What do you consider to be your greatest strength?","type":"behavioral"},
+  {"id":9,"job_role":"any","topic":"Behavioral","difficulty":"medium","question":"Tell me about a time you disagreed with a teammate. How did you resolve it?","type":"behavioral"},
+  {"id":10,"job_role":"any","topic":"Behavioral","difficulty":"medium","question":"If a PM or manager proposes a requirement that you think is unreasonable, what would you do?","type":"behavioral"},
+  {"id":11,"job_role":"any","topic":"Behavioral","difficulty":"medium","question":"How do you explain a complex technical concept to a non-technical audience?","type":"behavioral"},
+  {"id":12,"job_role":"any","topic":"Behavioral","difficulty":"hard","question":"Tell me about a time you failed or made a severe mistake. What did you learn and how did you remedy it?","type":"behavioral"},
+  {"id":13,"job_role":"any","topic":"Behavioral","difficulty":"hard","question":"How do you balance 'speed' and 'quality' when working under pressure?","type":"behavioral"},
+  {"id":14,"job_role":"any","topic":"General Technical","difficulty":"easy","question":"Which programming languages are you most familiar with, and which one do you use most often?","type":"technical"},
+  {"id":15,"job_role":"any","topic":"General Technical","difficulty":"easy","question":"What is the difference between a list and a tuple in Python?","type":"technical"},
+  {"id":16,"job_role":"any","topic":"General Technical","difficulty":"medium","question":"What is time complexity? What are some common time complexities?","type":"technical"},
+  {"id":17,"job_role":"data analyst","topic":"General Technical","difficulty":"easy","question":"What is the difference between WHERE and HAVING in SQL?","type":"technical"},
+  {"id":18,"job_role":"data analyst","topic":"General Technical","difficulty":"medium","question":"Can you explain the difference between INNER JOIN, LEFT JOIN, and RIGHT JOIN?","type":"technical"},
+  {"id":19,"job_role":"data science","topic":"General Technical","difficulty":"medium","question":"What is overfitting, and how do you prevent or solve it?","type":"technical"},
+  {"id":20,"job_role":"data science","topic":"General Technical","difficulty":"medium","question":"What is the purpose of train, validation, and test splits?","type":"technical"},
+  {"id":21,"job_role":"data science","topic":"General Technical","difficulty":"hard","question":"Explain precision, recall, F1-score, and AUC, and discuss when each is appropriate to use.","type":"technical"},
+  {"id":22,"job_role":"data science","topic":"General Technical","difficulty":"hard","question":"What is data leakage in machine learning?","type":"technical"},
+  {"id":23,"job_role":"data science","topic":"General Technical","difficulty":"hard","question":"Explain the bias-variance tradeoff.","type":"technical"},
+  {"id":24,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"Write a SQL query to find the first order date for each user.","type":"technical"},
+  {"id":25,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"How would you write a SQL query to calculate DAU (Daily Active Users) over the past 7 days?","type":"technical"},
+  {"id":26,"job_role":"data analyst","topic":"Data Analyst","difficulty":"hard","question":"Write a SQL query to calculate user next-day retention.","type":"technical"},
+  {"id":27,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"Which SQL window functions have you used? Examples: ROW_NUMBER(), RANK(), LAG()?","type":"technical"},
+  {"id":28,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"How do you define a North Star metric for an e-commerce platform?","type":"technical"},
+  {"id":29,"job_role":"data analyst","topic":"Data Analyst","difficulty":"hard","question":"If the PM says 'Conversion rate has dropped recently,' how would you approach the analysis?","type":"technical"},
+  {"id":30,"job_role":"data analyst","topic":"Data Analyst","difficulty":"hard","question":"What is cohort analysis and when should it be used?","type":"technical"},
+  {"id":31,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"What is the general workflow of an A/B test?","type":"technical"},
+  {"id":32,"job_role":"data analyst","topic":"Data Analyst","difficulty":"hard","question":"What are Type I and Type II errors?","type":"technical"},
+  {"id":33,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What are the core differences between Random Forest and XGBoost?","type":"technical"},
+  {"id":34,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"Explain the difference between bagging and boosting.","type":"technical"},
+  {"id":35,"job_role":"data science","topic":"Data Scientist","difficulty":"hard","question":"What is the core idea behind SVM, and what is the kernel trick?","type":"technical"},
+  {"id":36,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What is the principle behind PCA? Why can it be used for dimensionality reduction?","type":"technical"},
+  {"id":37,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What is the Central Limit Theorem?","type":"technical"},
+  {"id":38,"job_role":"data science","topic":"Data Scientist","difficulty":"hard","question":"How do you deal with class imbalance in a dataset?","type":"technical"},
+  {"id":39,"job_role":"data science","topic":"Data Scientist","difficulty":"hard","question":"If a model performs well on the training set but poorly on the test set, how would you troubleshoot?","type":"technical"},
+  {"id":40,"job_role":"data science","topic":"Data Scientist","difficulty":"hard","question":"How would you design a machine learning model to predict user churn?","type":"technical"},
+  {"id":41,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"What is the difference between feature drift and concept drift?","type":"technical"},
+  {"id":42,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"How do you prevent training-serving skew?","type":"technical"},
+  {"id":43,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"What is the difference between batch inference and real-time inference?","type":"technical"},
+  {"id":44,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"What is shadow deployment and canary deployment?","type":"technical"},
+  {"id":45,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"In deep learning, what occurs when the batch size is too large vs too small?","type":"technical"},
+  {"id":46,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"What is LoRA? Why is it considered resource-efficient?","type":"technical"},
+  {"id":47,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"Explain the general layout and flow of a Retrieval-Augmented Generation (RAG) system.","type":"technical"},
+  {"id":48,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is the difference between an Array and a Linked List?","type":"technical"},
+  {"id":49,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What are the common differences between Depth-First Search (DFS) and Breadth-First Search (BFS)?","type":"technical"},
+  {"id":50,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"Explain the concept of Dynamic Programming. How does it contrast with a Greedy algorithm?","type":"technical"},
+  {"id":51,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"How would you detect if a linked list has a cycle?","type":"technical"},
+  {"id":52,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What are the three main pillars of Object-Oriented Programming (OOP)?","type":"technical"},
+  {"id":53,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is the difference between a GET and a POST HTTP request?","type":"technical"},
+  {"id":54,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"How would you handle high concurrent requests hitting your application layer?","type":"technical"},
+  {"id":55,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"Design a highly scalable rate limiter.","type":"technical"},
+  {"id":56,"job_role":"any","topic":"Deep Dive","difficulty":"hard","question":"In your most recent project, what was the primary business problem you aimed to solve?","type":"behavioral"},
+  {"id":57,"job_role":"any","topic":"Deep Dive","difficulty":"hard","question":"Why did you choose this specific framework or method instead of alternatives in your project?","type":"behavioral"},
+  {"id":58,"job_role":"any","topic":"Deep Dive","difficulty":"hard","question":"What was the single most difficult technical challenge you encountered, and how did you overcome it?","type":"behavioral"},
+  {"id":59,"job_role":"any","topic":"Deep Dive","difficulty":"hard","question":"If you could do that project all over again, what architectural or modeling step would you change?","type":"behavioral"},
+  {"id":60,"job_role":"any","topic":"Deep Dive","difficulty":"hard","question":"How did you guarantee that your project conclusion/metrics were correct and not just anecdotal inferences?","type":"behavioral"},
+
+  {"id":61,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is the difference between a stack and a queue? Give a real-world use case for each.","type":"technical"},
+  {"id":62,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"Explain hashing and how hash collisions are handled.","type":"technical"},
+  {"id":63,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What are the SOLID principles? Briefly explain each one.","type":"technical"},
+  {"id":64,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is the difference between a process and a thread?","type":"technical"},
+  {"id":65,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"What is a deadlock? How can it be detected and prevented?","type":"technical"},
+  {"id":66,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is REST? What are its key constraints and how does it differ from GraphQL?","type":"technical"},
+  {"id":67,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is the difference between SQL and NoSQL databases? When would you choose one over the other?","type":"technical"},
+  {"id":68,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"Explain database indexing. When can an index hurt performance instead of helping?","type":"technical"},
+  {"id":69,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is a design pattern? Name two you have used and explain when you applied them.","type":"technical"},
+  {"id":70,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"What is the difference between monolithic and microservices architecture? What are the trade-offs?","type":"technical"},
+  {"id":71,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"How does a load balancer work? What strategies exist for distributing traffic?","type":"technical"},
+  {"id":72,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"What is caching? Compare LRU, write-through, and write-back caching strategies.","type":"technical"},
+  {"id":73,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"Explain the CAP theorem. Can a distributed system satisfy all three properties simultaneously?","type":"technical"},
+  {"id":74,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is the difference between synchronous and asynchronous programming? When would you use each?","type":"technical"},
+  {"id":75,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is Docker? How does containerization differ from virtual machines?","type":"technical"},
+  {"id":76,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is CI/CD? Describe the stages of a typical pipeline you have worked with.","type":"technical"},
+  {"id":77,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is a binary search tree? What are the time complexities for search, insert, and delete?","type":"technical"},
+  {"id":78,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"Explain the difference between TCP and UDP. When would you choose UDP over TCP?","type":"technical"},
+  {"id":79,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"What is a mutex? How does it differ from a semaphore?","type":"technical"},
+  {"id":80,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"Design a URL shortening service like bit.ly. Walk through your system design decisions.","type":"technical"},
+  {"id":81,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"How would you design a notification system that supports push, email, and SMS at scale?","type":"technical"},
+  {"id":82,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is garbage collection? How does Python manage memory?","type":"technical"},
+  {"id":83,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is the difference between optimistic locking and pessimistic locking in a database?","type":"technical"},
+  {"id":84,"job_role":"software engineering","topic":"SDE","difficulty":"hard","question":"Walk me through how you would implement a distributed message queue.","type":"technical"},
+  {"id":85,"job_role":"software engineering","topic":"SDE","difficulty":"medium","question":"What is eventual consistency, and how does it differ from strong consistency?","type":"technical"},
+
+  {"id":86,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"What is a feature store, and what problem does it solve in an ML system?","type":"technical"},
+  {"id":87,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"How do you monitor a machine learning model in production? What signals would trigger a retrain?","type":"technical"},
+  {"id":88,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"What is model versioning and why is it critical for reproducibility?","type":"technical"},
+  {"id":89,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"How would you design a data pipeline for a real-time recommendation system?","type":"technical"},
+  {"id":90,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"What is transfer learning and when would you apply it instead of training from scratch?","type":"technical"},
+  {"id":91,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"What is the attention mechanism? Why was it transformative for NLP?","type":"technical"},
+  {"id":92,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"What is the vanishing gradient problem and what techniques address it?","type":"technical"},
+  {"id":93,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"Compare L1 and L2 regularization. How does each affect the model weights?","type":"technical"},
+  {"id":94,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"How do you handle missing data in a machine learning pipeline?","type":"technical"},
+  {"id":95,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"What is feature importance? How do you compute it for tree-based models?","type":"technical"},
+  {"id":96,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"What is an embedding? Give two concrete examples of where embeddings are used in production.","type":"technical"},
+  {"id":97,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"How do you evaluate a recommendation system? What offline and online metrics would you use?","type":"technical"},
+  {"id":98,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"What is quantization in the context of deep learning models? What are its trade-offs?","type":"technical"},
+  {"id":99,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"Explain the difference between model parallelism and data parallelism for distributed training.","type":"technical"},
+  {"id":100,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"What is RLHF (Reinforcement Learning from Human Feedback) and how is it used to align LLMs?","type":"technical"},
+  {"id":101,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"How would you optimize a slow model inference endpoint to meet a 100ms SLA?","type":"technical"},
+  {"id":102,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"How do you prevent data leakage in a time-series forecasting task?","type":"technical"},
+  {"id":103,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"What is a confusion matrix? Walk through precision, recall, and F1 derived from it.","type":"technical"},
+  {"id":104,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"What is online learning? Give an example of a scenario where it is preferred over batch learning.","type":"technical"},
+  {"id":105,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"How would you build a machine learning platform from scratch for a mid-sized company?","type":"technical"},
+  {"id":106,"job_role":"machine learning","topic":"MLE","difficulty":"medium","question":"What is the difference between a generative model and a discriminative model?","type":"technical"},
+  {"id":107,"job_role":"machine learning","topic":"MLE","difficulty":"hard","question":"How do you perform A/B testing when deploying a new model, and what metrics do you track?","type":"technical"},
+
+  {"id":108,"job_role":"data science","topic":"Data Scientist","difficulty":"easy","question":"What is the difference between supervised, unsupervised, and semi-supervised learning?","type":"technical"},
+  {"id":109,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"Explain k-means clustering. What are its assumptions and limitations?","type":"technical"},
+  {"id":110,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What is hypothesis testing? Explain p-value and statistical significance in plain terms.","type":"technical"},
+  {"id":111,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What is multicollinearity and how does it affect linear regression?","type":"technical"},
+  {"id":112,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"Compare Lasso and Ridge regression. When would you use each?","type":"technical"},
+  {"id":113,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"How would you perform feature selection for a high-dimensional dataset?","type":"technical"},
+  {"id":114,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What is cross-validation? Why is k-fold preferred over a single train/test split?","type":"technical"},
+  {"id":115,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"Explain gradient descent and its main variants: batch, stochastic, and mini-batch.","type":"technical"},
+  {"id":116,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What is a ROC curve? How do you interpret the AUC score?","type":"technical"},
+  {"id":117,"job_role":"data science","topic":"Data Scientist","difficulty":"hard","question":"How would you design an experiment to test whether a new product feature increases user retention?","type":"technical"},
+  {"id":118,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What is SMOTE? When and why would you use it?","type":"technical"},
+  {"id":119,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What is time-series decomposition? What are its components?","type":"technical"},
+  {"id":120,"job_role":"data science","topic":"Data Scientist","difficulty":"hard","question":"What is the difference between correlation and causation? How can you establish causality from observational data?","type":"technical"},
+  {"id":121,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"How do you choose between a simpler model and a more complex one for a given problem?","type":"technical"},
+  {"id":122,"job_role":"data science","topic":"Data Scientist","difficulty":"hard","question":"Describe a full end-to-end machine learning project you have worked on, from problem framing to deployment.","type":"technical"},
+  {"id":123,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What is ensemble learning? Compare voting, bagging, and stacking.","type":"technical"},
+  {"id":124,"job_role":"data science","topic":"Data Scientist","difficulty":"hard","question":"Explain the difference between parametric and non-parametric statistical tests. Give an example of each.","type":"technical"},
+  {"id":125,"job_role":"data science","topic":"Data Scientist","difficulty":"hard","question":"How would you approach building a fraud detection system? What challenges would you anticipate?","type":"technical"},
+  {"id":126,"job_role":"data science","topic":"Data Scientist","difficulty":"medium","question":"What is the curse of dimensionality and why does it matter in machine learning?","type":"technical"},
+
+  {"id":127,"job_role":"data analyst","topic":"Data Analyst","difficulty":"easy","question":"What is the difference between a view and a materialized view in SQL?","type":"technical"},
+  {"id":128,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"Explain the difference between GROUP BY and PARTITION BY in SQL.","type":"technical"},
+  {"id":129,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"How would you detect and handle duplicate records in a large dataset?","type":"technical"},
+  {"id":130,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"How would you approach building a KPI dashboard for an executive audience?","type":"technical"},
+  {"id":131,"job_role":"data analyst","topic":"Data Analyst","difficulty":"easy","question":"What is the difference between mean, median, and mode? When is each the most appropriate measure of center?","type":"technical"},
+  {"id":132,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"How would you calculate customer lifetime value (LTV)? What data would you need?","type":"technical"},
+  {"id":133,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"What is funnel analysis? Walk me through how you would analyze a checkout funnel drop-off.","type":"technical"},
+  {"id":134,"job_role":"data analyst","topic":"Data Analyst","difficulty":"hard","question":"How would you identify the root cause of a sudden 20% drop in a key metric like daily revenue?","type":"technical"},
+  {"id":135,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"What is a CTE (Common Table Expression) in SQL? When is it preferable to a subquery?","type":"technical"},
+  {"id":136,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"How do you ensure data quality before delivering an analysis? What checks do you perform?","type":"technical"},
+  {"id":137,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"What is the difference between OLTP and OLAP systems? How does this affect your SQL queries?","type":"technical"},
+  {"id":138,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"How would you calculate month-over-month growth rate using only SQL?","type":"technical"},
+  {"id":139,"job_role":"data analyst","topic":"Data Analyst","difficulty":"easy","question":"What is the difference between a histogram and a bar chart? When do you use each?","type":"technical"},
+  {"id":140,"job_role":"data analyst","topic":"Data Analyst","difficulty":"hard","question":"How would you measure the impact of a pricing change on overall revenue? Walk me through your analysis plan.","type":"technical"},
+  {"id":141,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"What data visualization tools have you used and what are their respective strengths?","type":"technical"},
+  {"id":142,"job_role":"data analyst","topic":"Data Analyst","difficulty":"hard","question":"How do you handle a situation where two data sources give conflicting numbers for the same metric?","type":"technical"},
+  {"id":143,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"Explain the concept of seasonality in data. How would you adjust for it in your analysis?","type":"technical"},
+  {"id":144,"job_role":"data analyst","topic":"Data Analyst","difficulty":"hard","question":"Write a SQL query to find the top 3 products by revenue for each region using window functions.","type":"technical"},
+  {"id":145,"job_role":"data analyst","topic":"Data Analyst","difficulty":"medium","question":"What is session analysis in web analytics? How would you define a session boundary in SQL?","type":"technical"}
 ]
