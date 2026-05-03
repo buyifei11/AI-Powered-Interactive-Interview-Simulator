@@ -73,24 +73,41 @@ def generate_response(prompt: str, system_prompt: str = "", model: str = DEFAULT
 def evaluate_answer(question: str, user_answer: str, context: str = "", image_base64: str = None, candidate_name: str = "") -> dict:
     """
     Evaluates the user's answer and generates a follow-up question.
+    When image_base64 is provided, gpt-4o-mini also observes the candidate's
+    webcam frame and adds one sentence of non-verbal coaching feedback.
     """
-    name_ref = f" {candidate_name}" if candidate_name else ""
-    sys_prompt = (
-        "You are a sharp but warm technical interviewer having a real conversation — "
-        "think of yourself as a thoughtful senior engineer, not a grading rubric. "
-        "React naturally to what the candidate just said: acknowledge something specific they did well, "
-        "gently probe any gap or vague point, and show genuine curiosity. "
-        "Keep the tone conversational and encouraging. "
-        f"Address the candidate as '{candidate_name}' once if it feels natural{', otherwise skip the name' if candidate_name else ''}. "
-        "Finish with exactly one concise follow-up question."
-    )
+    name_clause = f"Address the candidate as '{candidate_name}' once if it feels natural. " if candidate_name else ""
+
+    if image_base64:
+        sys_prompt = (
+            "You are a sharp but warm AI interview coach. "
+            "This session is conducted with the candidate's explicit consent to webcam-based coaching. "
+            "You are given a screenshot captured from their webcam during their answer. "
+            "Your response should: "
+            "(1) Briefly acknowledge one specific thing they said well. "
+            "(2) If the webcam frame clearly shows something coaching-relevant — eye contact with the camera, "
+            "confident posture, or relaxed expression — add exactly one short sentence of non-verbal feedback "
+            "(skip this entirely if the frame is unclear or nothing notable is visible). "
+            "(3) Probe the most interesting gap or vague point in their answer. "
+            f"{name_clause}"
+            "End with exactly one concise follow-up question. Keep the tone conversational and encouraging."
+        )
+    else:
+        sys_prompt = (
+            "You are a sharp but warm technical interviewer having a real conversation — "
+            "think of yourself as a thoughtful senior engineer, not a grading rubric. "
+            "React naturally: acknowledge something specific they did well, "
+            "gently probe any gap, and show genuine curiosity. "
+            f"{name_clause}"
+            "Finish with exactly one concise follow-up question."
+        )
 
     prompt = f"Question asked: {question}\n\nCandidate's answer: {user_answer}"
     if context:
         prompt += f"\n\nAdditional context: {context}"
     prompt += f"\n\nReact naturally to {candidate_name + chr(39) + 's' if candidate_name else 'the'} answer and ask one follow-up question."
 
-    response_text = generate_response(prompt, system_prompt=sys_prompt, image_base64=None)
+    response_text = generate_response(prompt, system_prompt=sys_prompt, image_base64=image_base64)
 
     return {
         "evaluation_and_followup": response_text
