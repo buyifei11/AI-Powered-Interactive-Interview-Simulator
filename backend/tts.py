@@ -1,9 +1,10 @@
 import os
+from typing import Optional
 from openai import OpenAI
 
 VOICE = "nova"  # alloy | echo | fable | onyx | nova | shimmer
 
-def text_to_speech(text: str, output_path: str = "output.mp3") -> str | None:
+def text_to_speech(text: str, output_path: str = "output.mp3") -> Optional[str]:
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         print("Warning: OPENAI_API_KEY not found, TTS skipped.")

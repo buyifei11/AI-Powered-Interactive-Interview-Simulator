@@ -48,12 +48,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Redirect /dashboard to /interview since we are bypassing the dashboard.
+  if (user && pathname === "/dashboard") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/interview";
+    return NextResponse.redirect(url);
+  }
+
   // Redirect authenticated users away from auth pages.
   const isAuthPage =
     pathname.startsWith("/login") || pathname.startsWith("/register");
   if (user && isAuthPage) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/interview";
     return NextResponse.redirect(url);
   }
 

@@ -73,7 +73,7 @@ export function RegisterForm() {
       });
     }
 
-    router.push("/dashboard");
+    router.push("/interview");
     router.refresh();
   };
 

@@ -131,7 +131,16 @@ export default function InterviewSimulator() {
       });
       const data = await res.json();
       setSession({ id: data.session_id, currentQuestion: data.question });
-      setMessages([{ role: "ai", text: data.question }]);
+      setMessages([{ 
+        role: "ai", 
+        text: data.question,
+        audioUrl: data.audio_url ? `${BACKEND_URL}${data.audio_url}` : undefined 
+      }]);
+
+      if (data.audio_url) {
+        const audio = new Audio(`${BACKEND_URL}${data.audio_url}`);
+        audio.play().catch(() => {});
+      }
     } catch (error) {
       console.error(error);
       alert("Failed to start. Is the backend running?");
@@ -309,6 +318,12 @@ export default function InterviewSimulator() {
 
           if (event.type === "transcript") {
             setMessages((prev) => [...prev, { role: "user", text: event.text }]);
+          } else if (event.type === "error") {
+            console.error("Backend streaming error:", event.text);
+            alert("Error generating response: " + event.text);
+            setLoading(false);
+            setIsStreaming(false);
+            break;
           } else if (event.type === "token") {
             if (firstToken) {
               firstToken = false;

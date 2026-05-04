@@ -44,37 +44,18 @@ SIMILARITY_THRESHOLD = 0.25
 def get_fresh_question(job_role: str, asked_questions: list) -> str:
     collection = rag.get_retriever()
     try:
-        count = collection.count()
-        res = collection.query(
-            query_texts=[f"interview question for {job_role}"],
-            n_results=min(50, count),
+        res = collection.get(
             where={"$or": [{"job_role": job_role}, {"job_role": "any"}]}
         )
-    except Exception:
+    except Exception as e:
+        print(f"Error querying ChromaDB: {e}")
         return "Could you describe a challenging project you recently worked on?"
 
-    candidates = res["documents"][0] if res and res["documents"] else []
+    candidates = res.get("documents", [])
     if not candidates:
         return "Could you describe a challenging project you recently worked on?"
 
-    valid = []
-    for candidate in candidates:
-        if candidate in asked_questions:
-            continue
-        too_similar = False
-        for asked in asked_questions:
-            try:
-                sim_res = collection.query(query_texts=[asked], n_results=1)
-                if sim_res and sim_res["documents"][0]:
-                    top_doc = sim_res["documents"][0][0]
-                    top_dist = sim_res["distances"][0][0]
-                    if top_doc == candidate and top_dist < SIMILARITY_THRESHOLD:
-                        too_similar = True
-                        break
-            except Exception:
-                pass
-        if not too_similar:
-            valid.append(candidate)
+    valid = [c for c in candidates if c not in asked_questions]
 
     if valid:
         return random.choice(valid)
@@ -89,6 +70,10 @@ async def health_check():
 async def start_interview(req: StartInterviewRequest):
     first_q = get_fresh_question(req.job_role, [])
     session_id = str(uuid.uuid4())
+    
+    tts_output_filename = f"outputs/{session_id}_first.mp3"
+    tts.text_to_speech(first_q, tts_output_filename)
+    
     GLOBAL_SESSIONS[session_id] = {
         "job_role": req.job_role,
         "last_name": req.last_name,
@@ -97,7 +82,11 @@ async def start_interview(req: StartInterviewRequest):
         "history": f"AI: {first_q}\n",
         "asked_questions": [first_q],
     }
-    return {"question": first_q, "session_id": session_id}
+    return {
+        "question": first_q, 
+        "session_id": session_id,
+        "audio_url": f"/api/audio/{os.path.basename(tts_output_filename)}"
+    }
 
 @app.post("/api/end")
 async def end_interview(req: EndInterviewRequest):
@@ -128,7 +117,7 @@ def chat(
     session["history"] += f"User: {user_transcript}\n"
 
     candidate_name = session.get("last_name", "")
-    is_completed = session["total_qs"] >= MAX_MAIN_QUESTIONS
+    is_completed = session["total_qs"] > MAX_MAIN_QUESTIONS or (session["total_qs"] == MAX_MAIN_QUESTIONS and session["follow_ups"] >= 2)
     question_suffix = ""
     increment_followup = False
 
@@ -138,8 +127,9 @@ def chat(
             "You are the hiring manager wrapping up an interview. "
             f"{name_line}"
             "Speak directly to the candidate in a warm, honest tone — as if giving feedback face to face. "
-            "Highlight two or three genuine strengths, mention one concrete area to work on. "
-            "End with a score out of 100 and a clear decision: Hired or Not Hired."
+            "Highlight their genuine strengths and areas to work on across three dimensions: "
+            "1. Logic & Problem Solving, 2. Technical Competency, 3. Communication.\n"
+            "End with a final score out of 100 and a clear decision: Hired or Not Hired."
         )
         prompt = (
             f"Here is the full interview transcript:\n{session['history']}\n\n"
@@ -149,8 +139,9 @@ def chat(
         sys_prompt = "You are a warm, experienced technical interviewer giving conversational feedback."
         prompt = (
             f"Question: {current_question}\n\n"
-            f"Candidate's answer: {user_transcript}\n\n"
-            f"Give 1-2 sentences of warm feedback addressing the candidate as '{candidate_name}' if it feels natural. "
+            f"Candidate Answer: {user_transcript}\n\n"
+            f"Give 2-3 sentences of warm, conversational feedback addressing the candidate as '{candidate_name}' if it feels natural. "
+            "Mention one highlight regarding their Logic, Technical Depth, or Communication. "
             "Do NOT ask another question. Close with a brief natural transition like 'Let's move on to the next one.'"
         )
         new_q = get_fresh_question(session["job_role"], session.get("asked_questions", []))
@@ -162,21 +153,23 @@ def chat(
         name_clause = f"Address the candidate as '{candidate_name}' once if it feels natural. " if candidate_name else ""
         if video_frame:
             sys_prompt = (
-                "You are a sharp but warm AI interview coach. "
-                "This session is conducted with the candidate's explicit consent to webcam-based coaching. "
-                "You are given a screenshot from their webcam captured during their answer. "
-                "(1) Briefly acknowledge one specific thing they said well. "
-                "(2) If the webcam frame clearly shows something coaching-relevant — eye contact with the camera, "
-                "confident posture, or relaxed expression — add exactly one short sentence of non-verbal feedback "
-                "(skip entirely if the frame is unclear or nothing notable is visible). "
-                "(3) Probe the most interesting gap or vague point in their answer. "
+                "You are an expert AI interview coach. "
+                "This session is conducted with the candidate's explicit consent to webcam-based coaching.\n"
+                "You must evaluate the candidate's answer across three dimensions:\n"
+                "1. Logic, 2. Technical Depth, 3. Communication.\n"
+                "You will be provided with a [Facial Expression Context] based on their webcam feed. "
+                "You MUST include exactly one short sentence of non-verbal coaching feedback based on this context.\n"
+                "(1) Acknowledge a strength in one of the dimensions.\n"
+                "(2) Probe the most interesting gap or vague point.\n"
                 f"{name_clause}"
-                "End with exactly one concise follow-up question. Keep the tone conversational and encouraging."
+                "Keep the tone conversational and encouraging. Finish with exactly one concise follow-up question."
             )
         else:
             sys_prompt = (
-                "You are a sharp but warm technical interviewer having a real conversation. "
-                "React naturally: acknowledge a strength, probe a gap, show genuine curiosity. "
+                "You are an expert technical interviewer having a real conversation. "
+                "You must evaluate the candidate's answer across three dimensions:\n"
+                "1. Logic, 2. Technical Depth, 3. Communication.\n"
+                "React naturally: acknowledge a strength in one of these areas, probe a gap, and show genuine curiosity.\n"
                 f"{name_clause}"
                 "Finish with exactly one concise follow-up question."
             )
@@ -192,20 +185,19 @@ def chat(
 
         full_text = ""
         try:
+            final_prompt = prompt
             if video_frame and increment_followup:
-                # Vision path: OpenAI gpt-4o-mini (non-streaming), then fake-stream result
-                vision_text = llm.generate_response(prompt, system_prompt=sys_prompt, image_base64=video_frame)
-                for i in range(0, len(vision_text), 4):
-                    token = vision_text[i:i + 4]
+                facial_context = llm.analyze_facial_expression(video_frame)
+                if facial_context:
+                    final_prompt += f"\n\n[Facial Expression Context]: {facial_context}\nMake sure to incorporate this observation naturally into your coaching feedback."
+            
+            for chunk in llm.stream_chat(final_prompt, sys_prompt):
+                token = chunk.choices[0].delta.content or ""
+                if token:
                     full_text += token
                     yield json.dumps({"type": "token", "text": token}) + "\n"
-            else:
-                for chunk in llm.stream_chat(prompt, sys_prompt):
-                    token = chunk.choices[0].delta.content or ""
-                    if token:
-                        full_text += token
-                        yield json.dumps({"type": "token", "text": token}) + "\n"
         except Exception as e:
+            print(f"Error in stream generation: {e}")
             yield json.dumps({"type": "error", "text": str(e)}) + "\n"
             return
 

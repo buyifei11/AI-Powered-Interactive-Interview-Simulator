@@ -16,7 +16,6 @@ interface AppTopbarProps {
 }
 
 const navLinks = [
-  { href: "/dashboard", label: "Dashboard" },
   { href: "/interview", label: "New Interview" },
 ];
 
@@ -27,7 +26,7 @@ export function AppTopbar({ firstName }: AppTopbarProps) {
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/dashboard" className="flex items-center gap-2.5 group shrink-0">
+        <Link href="/interview" className="flex items-center gap-2.5 group shrink-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-500 flex items-center justify-center shadow-md shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
             <Mic className="w-4 h-4 text-white" />
           </div>
