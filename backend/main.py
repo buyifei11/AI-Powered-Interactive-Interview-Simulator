@@ -43,23 +43,64 @@ SIMILARITY_THRESHOLD = 0.25
 
 def get_fresh_question(job_role: str, asked_questions: list) -> str:
     collection = rag.get_retriever()
+    # Deep Dive questions (referencing 'that project') don't work as standalone main questions
+    EXCLUDED_TOPICS = {"Deep Dive"}
     try:
-        res = collection.get(
+        count = collection.count()
+        res = collection.query(
+            query_texts=[f"interview question for {job_role}"],
+            n_results=min(50, count),
             where={"$or": [{"job_role": job_role}, {"job_role": "any"}]}
         )
-    except Exception as e:
-        print(f"Error querying ChromaDB: {e}")
+    except Exception:
         return "Could you describe a challenging project you recently worked on?"
 
-    candidates = res.get("documents", [])
+    candidates_raw = res["documents"][0] if res and res["documents"] else []
+    metadatas_raw = res["metadatas"][0] if res and res["metadatas"] else []
+    if not candidates_raw:
+        return "Could you describe a challenging project you recently worked on?"
+
+    # Filter out Deep Dive topic questions
+    candidates = [
+        doc for doc, meta in zip(candidates_raw, metadatas_raw)
+        if meta.get("topic") not in EXCLUDED_TOPICS
+    ]
     if not candidates:
-        return "Could you describe a challenging project you recently worked on?"
+        candidates = candidates_raw  # fallback if all were filtered
 
-    valid = [c for c in candidates if c not in asked_questions]
+    valid = []
+    for candidate in candidates:
+        if candidate in asked_questions:
+            continue
+        too_similar = False
+        for asked in asked_questions:
+            try:
+                sim_res = collection.query(query_texts=[asked], n_results=1)
+                if sim_res and sim_res["documents"][0]:
+                    top_doc = sim_res["documents"][0][0]
+                    top_dist = sim_res["distances"][0][0]
+                    if top_doc == candidate and top_dist < SIMILARITY_THRESHOLD:
+                        too_similar = True
+                        break
+            except Exception:
+                pass
+        if not too_similar:
+            valid.append(candidate)
 
     if valid:
         return random.choice(valid)
     return "Can you walk me through a project where you had significant technical ownership?"
+
+
+def get_trimmed_history(history: str, max_exchanges: int = 4) -> str:
+    """Return the last N AI+User exchange pairs to keep prompts within token limits."""
+    lines = [l for l in history.strip().split("\n") if l.strip()]
+    # Each exchange = 1 AI line + 1 User line = 2 lines. Keep last max_exchanges exchanges.
+    keep = max_exchanges * 2
+    if len(lines) > keep:
+        trimmed = lines[-keep:]
+        return "[Earlier history truncated for brevity]\n" + "\n".join(trimmed)
+    return history
 
 
 @app.get("/api/health")
@@ -136,13 +177,20 @@ def chat(
             "Please give your closing feedback, score, and decision."
         )
     elif session["follow_ups"] >= 2:
-        sys_prompt = "You are a warm, experienced technical interviewer giving conversational feedback."
+        sys_prompt = (
+            "You are a warm, experienced technical interviewer giving conversational feedback. "
+            "You must acknowledge the candidate's latest answer and then transition to a new topic.\n\n"
+            "IMPORTANT: Prioritize the specific facts, numbers, and hypothetical constraints provided in the question "
+            "over general rules (e.g., the 68-95-99.7 rule) if they conflict. If a candidate follows the question's premise, they are correct."
+        )
         prompt = (
-            f"Question: {current_question}\n\n"
-            f"Candidate Answer: {user_transcript}\n\n"
-            f"Give 2-3 sentences of warm, conversational feedback addressing the candidate as '{candidate_name}' if it feels natural. "
-            "Mention one highlight regarding their Logic, Technical Depth, or Communication. "
-            "Do NOT ask another question. Close with a brief natural transition like 'Let's move on to the next one.'"
+            f"Recent Interview History:\n{get_trimmed_history(session['history'])}\n"
+            f"LATEST Question: {current_question}\n\n"
+            f"Candidate LATEST Answer: {user_transcript}\n\n"
+            f"Give 2-3 sentences of warm feedback. Address the candidate as '{candidate_name}' if it feels natural. "
+            "Mention one highlight from their LATEST answer. "
+            "CRITICAL: Output NO questions at all. The next question will appear automatically after your response. "
+            "End with a brief transition like 'Let\'s move on to the next one.'"
         )
         new_q = get_fresh_question(session["job_role"], session.get("asked_questions", []))
         session["asked_questions"].append(new_q)
@@ -151,32 +199,35 @@ def chat(
         question_suffix = f"\n\n**Question {session['total_qs']} of {MAX_MAIN_QUESTIONS}:** {new_q}"
     else:
         name_clause = f"Address the candidate as '{candidate_name}' once if it feels natural. " if candidate_name else ""
+        common_instructions = (
+            "You must evaluate the candidate's latest answer across three dimensions: 1. Logic, 2. Technical Depth, 3. Communication.\n"
+            "IMPORTANT: Prioritize the specific facts, numbers, and hypothetical constraints provided in the question "
+            "over general rules (e.g., the 68-95-99.7 rule) if they conflict. If a candidate follows the question's premise, they are correct.\n"
+            "React naturally: acknowledge a strength in one of these areas, probe a gap, and show genuine curiosity."
+        )
         if video_frame:
             sys_prompt = (
                 "You are an expert AI interview coach. "
                 "This session is conducted with the candidate's explicit consent to webcam-based coaching.\n"
-                "You must evaluate the candidate's answer across three dimensions:\n"
-                "1. Logic, 2. Technical Depth, 3. Communication.\n"
+                + common_instructions + "\n"
                 "You will be provided with a [Facial Expression Context] based on their webcam feed. "
-                "You MUST include exactly one short sentence of non-verbal coaching feedback based on this context.\n"
-                "(1) Acknowledge a strength in one of the dimensions.\n"
-                "(2) Probe the most interesting gap or vague point.\n"
-                f"{name_clause}"
-                "Keep the tone conversational and encouraging. Finish with exactly one concise follow-up question."
+                "Weave ONE short supportive sentence about their presence naturally into your response — "
+                "do NOT use any prefix or label like 'Non-verbal coaching feedback:'. "
+                "Do NOT repeat the facial observation more than once.\n"
+                f"{name_clause}Finish with exactly one concise follow-up question. Do NOT add more than one question."
             )
         else:
             sys_prompt = (
-                "You are an expert technical interviewer having a real conversation. "
-                "You must evaluate the candidate's answer across three dimensions:\n"
-                "1. Logic, 2. Technical Depth, 3. Communication.\n"
-                "React naturally: acknowledge a strength in one of these areas, probe a gap, and show genuine curiosity.\n"
-                f"{name_clause}"
-                "Finish with exactly one concise follow-up question."
+                "You are an expert technical interviewer having a real conversation.\n"
+                + common_instructions + "\n"
+                f"{name_clause}Finish with exactly one concise follow-up question."
             )
         prompt = (
-            f"Question asked: {current_question}\n\n"
-            f"Candidate's answer: {user_transcript}\n\n"
-            "React naturally and ask one follow-up question."
+            f"Recent Interview History:\n{get_trimmed_history(session['history'])}\n"
+            f"LATEST Question Asked: {current_question}\n\n"
+            f"Candidate LATEST Answer: {user_transcript}\n\n"
+            "React naturally to the LATEST answer. "
+            "CRITICAL: End with EXACTLY ONE follow-up question. Do NOT ask two questions."
         )
         increment_followup = True
 
@@ -189,7 +240,11 @@ def chat(
             if video_frame and increment_followup:
                 facial_context = llm.analyze_facial_expression(video_frame)
                 if facial_context:
-                    final_prompt += f"\n\n[Facial Expression Context]: {facial_context}\nMake sure to incorporate this observation naturally into your coaching feedback."
+                    final_prompt += (
+                        f"\n\n[Facial Expression Context — use this exactly once, inline, with NO label or prefix]: {facial_context}\n"
+                        "You MUST mention this observation naturally in ONE sentence within your response. "
+                        "Do NOT write 'Non-verbal coaching feedback:' or repeat it."
+                    )
             
             for chunk in llm.stream_chat(final_prompt, sys_prompt):
                 token = chunk.choices[0].delta.content or ""

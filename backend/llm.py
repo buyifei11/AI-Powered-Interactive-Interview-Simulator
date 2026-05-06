@@ -13,21 +13,25 @@ def get_client():
 
 def analyze_facial_expression(image_base64: str) -> str:
     """
-    Calls OpenAI GPT-4o-mini to analyze facial expression and body language from a single frame.
-    Returns a short 1-2 sentence description of the candidate's emotion/confidence.
+    Calls OpenAI GPT-4o-mini to analyze facial expression from a webcam frame.
+    Returns a specific 1-sentence observation, or empty string if the frame is unclear.
     """
     openai_api_key = os.environ.get("OPENAI_API_KEY")
     if not openai_api_key:
-        return "No OpenAI key provided, skipping facial analysis."
+        return ""
 
     try:
         client = OpenAI(api_key=openai_api_key)
-        sys_prompt = "You are an expert at reading micro-expressions and body language."
+        sys_prompt = "You are an AI coach analyzing a candidate's webcam frame during a job interview."
         prompt = (
-            "Analyze the facial expression, eye contact, and posture of the person in this image. "
-            "Are they smiling, nervous, confused, confident, or distracted? "
-            "Return ONLY a short, punchy 1-2 sentence observation about their expression. "
-            "Do NOT include any prefixes like 'The candidate appears'—just state the observation."
+            "Look carefully at this webcam frame and describe ONE specific, concrete thing you observe about "
+            "the candidate's facial expression or eye direction. Be specific — for example: "
+            "'You're leaning slightly forward and your eyes are bright' or "
+            "'You glanced away briefly but quickly refocused' or "
+            "'You have a slight smile and steady eye contact.' "
+            "If the frame is dark, blurry, or the face is not clearly visible, respond with exactly: SKIP. "
+            "Do NOT say 'calm and focused' or any generic phrase. Be specific about what you actually see. "
+            "Output ONLY one sentence (or SKIP)."
         )
 
         response = client.chat.completions.create(
@@ -42,10 +46,14 @@ def analyze_facial_expression(image_base64: str) -> str:
                     ]
                 }
             ],
-            max_tokens=50,
-            temperature=0.3,
+            max_tokens=60,
+            temperature=0.5,
         )
-        return response.choices[0].message.content.strip()
+        result = response.choices[0].message.content.strip()
+        # If the model says SKIP or returns something too generic, discard it
+        if not result or result.upper() == "SKIP" or "calm and focused" in result.lower():
+            return ""
+        return result
     except Exception as e:
         print(f"Error in facial analysis: {e}")
         return ""
