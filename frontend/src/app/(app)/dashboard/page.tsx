@@ -39,7 +39,8 @@ export default async function DashboardPage() {
     "there";
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-10">
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-10">
       {/* Header */}
       <div>
         <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
@@ -112,6 +113,7 @@ export default async function DashboardPage() {
         <div className="rounded-xl border border-border bg-card/50 px-6 py-10 text-center text-sm text-muted-foreground">
           Your completed interview sessions will appear here.
         </div>
+      </div>
       </div>
     </div>
   );

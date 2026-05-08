@@ -387,18 +387,34 @@ export default function InterviewSimulator() {
   // Pre-interview screen
   if (!isRoleSelected) {
     return (
-      <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
-        <div className="flex-1 flex flex-col items-center justify-center space-y-8 p-4">
-          <div className="bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 max-w-lg text-center w-full">
-            <h2 className="text-3xl font-semibold mb-2 text-white">Customize Interview</h2>
-            <p className="text-slate-400 mb-8">Select the domain you want to practice for.</p>
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-auto bg-background font-sans text-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 flex items-start justify-center overflow-hidden"
+        >
+          <div className="h-[520px] w-[980px] rounded-full bg-violet-600/10 blur-[120px] -translate-y-1/3" />
+        </div>
+
+        <div className="relative flex flex-1 flex-col items-center justify-center space-y-8 p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 text-center shadow-2xl shadow-black/20">
+            <h2 className="mb-2 font-display text-3xl font-bold tracking-tight">
+              Customize{" "}
+              <span className="bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">
+                interview
+              </span>
+            </h2>
+            <p className="mb-8 text-muted-foreground">
+              Select the domain you want to practice for.
+            </p>
             
             <div className="space-y-4 mb-8 text-left">
-              <label className="block text-sm font-medium text-slate-300 ml-1">Job Role</label>
+              <label className="ml-1 block text-sm font-medium text-muted-foreground">
+                Job role
+              </label>
               <select 
                 value={jobRole}
                 onChange={(e) => setJobRole(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 text-white"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-violet-500/60"
               >
                 {JOB_ROLES.map(role => (
                    <option key={role} value={role}>{role.replace(/\b\w/g, l => l.toUpperCase())}</option>
@@ -409,7 +425,7 @@ export default function InterviewSimulator() {
             <button
               onClick={startInterview}
               disabled={loading}
-              className="w-full relative overflow-hidden py-4 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-400 hover:to-blue-500 rounded-xl text-lg font-bold text-white transition-all shadow-lg hover:shadow-cyan-500/25 active:scale-95 disabled:opacity-50"
+              className="w-full relative overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 to-indigo-500 py-4 text-lg font-bold text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-indigo-400 hover:shadow-violet-500/40 active:scale-95 disabled:opacity-50"
             >
               Start Session
             </button>
@@ -420,39 +436,59 @@ export default function InterviewSimulator() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
-      <header className="py-4 border-b border-slate-800 text-center shadow-md bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
-        <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-blue-500">
-          {jobRole.replace(/\b\w/g, l => l.toUpperCase())} Interview
-        </h1>
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background font-sans text-foreground">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 flex items-start justify-center overflow-hidden"
+      >
+        <div className="h-[520px] w-[980px] rounded-full bg-violet-600/10 blur-[120px] -translate-y-1/3" />
+      </div>
+
+      <header className="relative z-10 shrink-0 border-b border-border/60 bg-background/80 shadow-sm backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-4 py-4 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
+          <div className="min-w-0">
+            <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1.5 text-xs font-medium text-violet-300">
+              <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400" />
+              Voice-first practice session
+            </div>
+            <h1 className="truncate bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text font-display text-2xl font-extrabold tracking-tight text-transparent sm:text-3xl">
+              {jobRole.replace(/\b\w/g, (l) => l.toUpperCase())} Interview
+            </h1>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
+              Live
+            </div>
+          </div>
+        </div>
       </header>
 
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 flex flex-col lg:flex-row gap-6">
-        
+      <main className="relative mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col gap-6 p-4 lg:flex-row">
         {/* Left Column: Chat feed */}
-        <div className="flex-1 flex flex-col bg-slate-800/50 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden relative min-h-[500px]">
-             
-          <div className="flex-1 p-6 overflow-y-auto space-y-6 scroll-smooth">
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-2xl shadow-black/20">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto scroll-smooth p-6 overscroll-contain">
             {messages.map((msg, idx) => (
                <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-               <div className="flex gap-4 max-w-[85%]">
+               <div className="flex gap-3 max-w-[85%]">
                  {msg.role === "ai" && (
-                   <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg shrink-0 overflow-hidden">
+                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-600 to-indigo-500 flex items-center justify-center shadow-md shadow-violet-500/25 shrink-0 overflow-hidden">
                      <span className="text-xs font-bold text-white">AI</span>
                    </div>
                  )}
                  <div
-                   className={`rounded-3xl px-6 py-4 shadow-md ${
+                   className={`rounded-2xl px-4 py-3 shadow-sm ${
                      msg.role === "user"
-                       ? "bg-blue-600 text-white rounded-tr-none"
-                       : "bg-slate-700 text-slate-100 rounded-tl-none border border-slate-600"
+                       ? "bg-gradient-to-br from-violet-600 to-indigo-500 text-white rounded-tr-sm"
+                       : "bg-muted text-foreground rounded-tl-sm border border-border"
                    }`}
                  >
-                   <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                    {msg.role === "ai" && msg.audioUrl && (
                      <button
                        onClick={() => new Audio(msg.audioUrl!).play()}
-                       className="mt-3 flex items-center gap-1.5 text-xs text-slate-400 hover:text-teal-400 transition-colors"
+                       className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                        title="Replay audio"
                      >
                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -468,38 +504,38 @@ export default function InterviewSimulator() {
 
             {loading && !isStreaming && (
               <div className="flex justify-start">
-                <div className="flex gap-4 max-w-[85%]">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shrink-0 opacity-70">
+                <div className="flex gap-3 max-w-[85%]">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-600 to-indigo-500 flex items-center justify-center shrink-0 opacity-80">
                     <span className="text-xs font-bold text-white">AI</span>
                   </div>
-                  <div className="bg-slate-700 text-slate-400 rounded-3xl rounded-tl-none px-6 py-4 flex items-center gap-2 border border-slate-600">
-                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div className="rounded-2xl rounded-tl-sm border border-border bg-muted px-4 py-3 flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                   </div>
                 </div>
               </div>
             )}
 
             {completed && (
-              <div className="mt-8 text-center bg-teal-900/40 border border-teal-500/50 p-6 rounded-2xl mx-auto max-w-md animate-in fade-in zoom-in">
-                 <h3 className="text-2xl font-bold text-teal-400 mb-2">Interview Completed</h3>
-                 <p className="text-slate-300">Thank you for your time. Your final feedback is above.</p>
+              <div className="mx-auto mt-8 max-w-md animate-in fade-in zoom-in rounded-2xl border border-violet-500/30 bg-violet-500/10 p-6 text-center">
+                 <h3 className="mb-2 font-display text-2xl font-bold text-violet-300">Interview completed</h3>
+                 <p className="text-sm text-muted-foreground">Thank you for your time. Your final feedback is above.</p>
               </div>
             )}
           </div>
           
           {/* Bottom Control Bar */}
           {!completed && (
-            <div className="p-6 bg-slate-900 border-t border-slate-800 flex flex-col items-center justify-center gap-4 relative z-10">
+            <div className="relative z-10 flex flex-col items-center justify-center gap-3 border-t border-border bg-muted/30 p-6">
               <button
                 onClick={startRecording}
                 disabled={loading || isStreaming}
                 className={`group relative flex items-center justify-center w-20 h-20 rounded-full transition-all duration-300 ${
                   isRecording
                   ? "bg-rose-500 scale-110 shadow-[0_0_40px_rgba(244,63,94,0.6)]"
-                  : "bg-teal-500 hover:bg-teal-400 hover:scale-105 shadow-lg shadow-teal-500/20"
-                } disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-teal-500`}
+                  : "bg-gradient-to-br from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 hover:scale-105 shadow-lg shadow-violet-500/25"
+                } disabled:opacity-50 disabled:hover:scale-100`}
               >
                 {isRecording && (
                   <>
@@ -515,7 +551,7 @@ export default function InterviewSimulator() {
                   )}
                 </svg>
               </button>
-              <div className="text-xs text-slate-400 font-medium">
+              <div className="text-xs text-muted-foreground font-medium">
                 {isRecording ? "Recording... Click to stop & evaluate" : "Click to start recording answer"}
               </div>
 
@@ -524,7 +560,7 @@ export default function InterviewSimulator() {
                   requestNavigation("/dashboard");
                 }}
                 disabled={loading || isStreaming || isRecording}
-                className="mt-1 px-4 py-2 rounded-lg border border-rose-500/50 text-rose-300 hover:bg-rose-500/10 disabled:opacity-50"
+                className="mt-1 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted disabled:opacity-50"
               >
                 End Interview
               </button>
@@ -534,9 +570,9 @@ export default function InterviewSimulator() {
 
         {/* Right Column: Camera / Additional Info */}
         <div className="w-full lg:w-72 shrink-0 flex flex-col gap-6">
-           <div className="bg-slate-800 rounded-3xl p-4 shadow-xl border border-slate-700">
-             <h3 className="text-sm font-semibold text-slate-300 mb-3 uppercase tracking-wider">Your Camera</h3>
-             <div className="relative aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-700/50 flex items-center justify-center">
+           <div className="rounded-3xl border border-border bg-card p-4 shadow-xl shadow-black/10">
+             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your camera</h3>
+             <div className="relative aspect-video rounded-xl overflow-hidden border border-border bg-muted flex items-center justify-center">
                <video 
                  ref={videoRef} 
                  className="absolute inset-0 w-full h-full object-cover opacity-100" 
@@ -548,7 +584,7 @@ export default function InterviewSimulator() {
                 <div className="absolute top-2 right-2 w-3 h-3 bg-rose-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
                )}
              </div>
-             <p className="mt-3 text-xs text-slate-400 leading-relaxed">
+             <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
                When you answer, the AI analyzes your facial expressions and tone to provide soft-skills feedback.
              </p>
            </div>
@@ -558,9 +594,9 @@ export default function InterviewSimulator() {
 
       {confirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
-            <h3 className="text-lg font-semibold text-white">End interview?</h3>
-            <p className="mt-2 text-sm text-slate-300">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl shadow-black/30">
+            <h3 className="font-display text-lg font-semibold text-foreground">End interview?</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
               {pendingPath
                 ? "Your interview is still active. Leave this page and end the session?"
                 : "Your current interview session will end immediately."}
@@ -569,13 +605,13 @@ export default function InterviewSimulator() {
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={handleCancelEndInterview}
-                className="px-4 py-2 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800"
+                className="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmEndInterview}
-                className="px-4 py-2 rounded-lg border border-rose-500/50 text-rose-300 hover:bg-rose-500/10"
+                className="rounded-lg border border-rose-500/50 px-4 py-2 text-sm text-rose-300 hover:bg-rose-500/10"
               >
                 End Interview
               </button>
