@@ -1,0 +1,3 @@
+INFO:     Will watch for changes in these directories: ['/Users/yifeibu/AI-Powered-Interactive-Interview-Simulator/backend']
+ERROR:    [Errno 48] Address already in use
+Loaded 1008 questions into ChromaDB collection 'interview_questions'.
